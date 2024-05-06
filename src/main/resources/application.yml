@@ -1,0 +1,31 @@
+# database 연동 설정
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # spring data jpa 설정
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  # email 인증
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SMTP_ACCOUNT}
+    password: ${SMTP_PW}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+
+# JWT Secret Key
+JWT_SECRET: ${JWT_SECRET_KEY}
