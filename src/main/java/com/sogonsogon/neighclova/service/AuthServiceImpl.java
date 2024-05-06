@@ -1,19 +1,20 @@
 package com.sogonsogon.neighclova.service;
 
 import com.sogonsogon.neighclova.domain.Certification;
+import com.sogonsogon.neighclova.domain.User;
 import com.sogonsogon.neighclova.dto.request.CheckCertificationRequestDto;
 import com.sogonsogon.neighclova.dto.request.EmailCertificationRequestDto;
 import com.sogonsogon.neighclova.dto.request.EmailCheckRequestDto;
-import com.sogonsogon.neighclova.dto.response.CheckCertificationResponseDto;
-import com.sogonsogon.neighclova.dto.response.EmailCertificationResponseDto;
-import com.sogonsogon.neighclova.dto.response.EmailCheckResponseDto;
-import com.sogonsogon.neighclova.dto.response.ResponseDto;
+import com.sogonsogon.neighclova.dto.request.SignUpRequestDto;
+import com.sogonsogon.neighclova.dto.response.*;
 import com.sogonsogon.neighclova.provider.EmailProvider;
 import com.sogonsogon.neighclova.repository.CertificationRepository;
 import com.sogonsogon.neighclova.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService{
     private final UserRepository userRepo;
     private final EmailProvider emailProvider;
     private final CertificationRepository certificationRepo;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public ResponseEntity<? super EmailCheckResponseDto> emailCheck(EmailCheckRequestDto dto) {
@@ -82,6 +84,36 @@ public class AuthServiceImpl implements AuthService{
             return ResponseDto.databaseError();
         }
         return CheckCertificationResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto) {
+        try{
+            String email = dto.getEmail();
+            String certificationNumber = dto.getCertificationNumber();
+
+            boolean isExistEmail = userRepo.existsByEmail(email);
+            if(isExistEmail) return SignUpResponseDto.duplicatedEmail();
+
+            Certification certification = certificationRepo.findByEmail(email);
+            boolean isMatched = certification.getEmail().equals(email) && certification.getCertificationNumber().equals(certificationNumber);
+            if (!isMatched) return SignUpResponseDto.certificationFail();
+
+            // password encoding
+            String password = dto.getPassword();
+            String encodedPassword = passwordEncoder.encode(password);
+            dto.setPassword(encodedPassword);
+
+            User user = new User(dto);
+            userRepo.save(user);
+
+            certificationRepo.deleteByEmail(email);
+
+        } catch(Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return SignUpResponseDto.success();
     }
 
     // 6자리 인증코드 생성

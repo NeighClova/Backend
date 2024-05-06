@@ -1,5 +1,6 @@
 package com.sogonsogon.neighclova.domain;
 
+import com.sogonsogon.neighclova.dto.request.SignUpRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +35,12 @@ public class User {
 
     @Column(length=20)
     private String type;
+
+    public User (SignUpRequestDto dto) {
+        this.email = dto.getEmail();
+        this.password = dto.getPassword();
+        this.status = true;
+        this.created_at = LocalDateTime.now();
+        this.type = "app";
+    }
 }

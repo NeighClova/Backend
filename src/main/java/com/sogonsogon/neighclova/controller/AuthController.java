@@ -3,9 +3,11 @@ package com.sogonsogon.neighclova.controller;
 import com.sogonsogon.neighclova.dto.request.CheckCertificationRequestDto;
 import com.sogonsogon.neighclova.dto.request.EmailCertificationRequestDto;
 import com.sogonsogon.neighclova.dto.request.EmailCheckRequestDto;
+import com.sogonsogon.neighclova.dto.request.SignUpRequestDto;
 import com.sogonsogon.neighclova.dto.response.CheckCertificationResponseDto;
 import com.sogonsogon.neighclova.dto.response.EmailCertificationResponseDto;
 import com.sogonsogon.neighclova.dto.response.EmailCheckResponseDto;
+import com.sogonsogon.neighclova.dto.response.SignUpResponseDto;
 import com.sogonsogon.neighclova.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,12 @@ public class AuthController {
     @PostMapping("/check-certification")
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(@RequestBody @Valid CheckCertificationRequestDto requestBody) {
         ResponseEntity<? super CheckCertificationResponseDto> response = authService.checkCertification(requestBody);
+        return response;
+    }
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<? super SignUpResponseDto> signUp(@RequestBody @Valid SignUpRequestDto requestBody) {
+        ResponseEntity<? super SignUpResponseDto> response = authService.signUp(requestBody);
         return response;
     }
 }
