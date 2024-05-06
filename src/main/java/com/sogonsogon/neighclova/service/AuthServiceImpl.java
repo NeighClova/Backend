@@ -2,12 +2,10 @@ package com.sogonsogon.neighclova.service;
 
 import com.sogonsogon.neighclova.domain.Certification;
 import com.sogonsogon.neighclova.domain.User;
-import com.sogonsogon.neighclova.dto.request.CheckCertificationRequestDto;
-import com.sogonsogon.neighclova.dto.request.EmailCertificationRequestDto;
-import com.sogonsogon.neighclova.dto.request.EmailCheckRequestDto;
-import com.sogonsogon.neighclova.dto.request.SignUpRequestDto;
+import com.sogonsogon.neighclova.dto.request.*;
 import com.sogonsogon.neighclova.dto.response.*;
 import com.sogonsogon.neighclova.provider.EmailProvider;
+import com.sogonsogon.neighclova.provider.JwtProvider;
 import com.sogonsogon.neighclova.repository.CertificationRepository;
 import com.sogonsogon.neighclova.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ import java.util.Random;
 public class AuthServiceImpl implements AuthService{
 
     private final UserRepository userRepo;
+    private final JwtProvider jwtProvider;
     private final EmailProvider emailProvider;
     private final CertificationRepository certificationRepo;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -114,6 +113,30 @@ public class AuthServiceImpl implements AuthService{
             return ResponseDto.databaseError();
         }
         return SignUpResponseDto.success();
+    }
+
+    @Override
+    public ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto) {
+
+        String token = null;
+
+        try {
+            String email = dto.getEmail();
+            User user = userRepo.findByEmail(email);
+            if (user == null) SignInResponseDto.signInFail();
+
+            String password = dto.getPassword();
+            String encodedPassword = user.getPassword();
+            boolean isMatched = passwordEncoder.matches(password, encodedPassword);
+            if (!isMatched) return SignInResponseDto.signInFail();
+
+            token = jwtProvider.create(email);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return SignInResponseDto.success(token);
     }
 
     // 6자리 인증코드 생성
