@@ -43,4 +43,12 @@ public class User {
         this.created_at = LocalDateTime.now();
         this.type = "app";
     }
+
+    public User (String email, String type) {
+        this.email = email;
+        this.password = "password";
+        this.status = true;
+        this.created_at = LocalDateTime.now();
+        this.type = type;
+    }
 }
