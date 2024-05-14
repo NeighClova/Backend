@@ -2,9 +2,11 @@ package com.sogonsogon.neighclova.dto.response;
 
 import com.sogonsogon.neighclova.common.ResponseCode;
 import com.sogonsogon.neighclova.common.ResponseMessage;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+@Getter
 public class PlaceResponseDto extends ResponseDto{
 
     private PlaceResponseDto() {
