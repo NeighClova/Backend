@@ -1,6 +1,7 @@
 package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.request.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.response.GetAllPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.PlaceResponseDto;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,7 +44,7 @@ public class PlaceController {
 
     // 수정
     @PatchMapping("")
-    public ResponseEntity<? super PlaceResponseDto> patchPost(@RequestParam("placeId") Long placeId, @RequestBody PlaceRequestDto requestDto) {
+    public ResponseEntity<? super PlaceResponseDto> patchPlace(@RequestParam("placeId") Long placeId, @RequestBody PlaceRequestDto requestDto) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -60,8 +61,31 @@ public class PlaceController {
             return PlaceResponseDto.databaseError();
         }
 
-        ResponseEntity<? super PlaceResponseDto> response = placeService.patchPost(placeId, email, requestDto);
+        ResponseEntity<? super PlaceResponseDto> response = placeService.patchPlace(placeId, email, requestDto);
         return response;
     }
+
+    // 전체 조회
+    @GetMapping("/all")
+    public ResponseEntity<? super GetAllPlaceResponseDto> getAllPlace() {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+        ResponseEntity<? super GetAllPlaceResponseDto> response = placeService.getAllPlace(email);
+        return response;
+    }
+
 
 }

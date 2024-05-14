@@ -2,7 +2,9 @@ package com.sogonsogon.neighclova.service;
 
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
+import com.sogonsogon.neighclova.dto.object.PlaceListItem;
 import com.sogonsogon.neighclova.dto.request.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.response.GetAllPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.PlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.repository.PlaceRepository;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class PlaceService {
     }
 
     @Transactional
-    public ResponseEntity<? super PlaceResponseDto> patchPost(Long placeId, String email, PlaceRequestDto dto) {
+    public ResponseEntity<? super PlaceResponseDto> patchPlace(Long placeId, String email, PlaceRequestDto dto) {
         try {
             Optional<Place> placeOptional = placeRepo.findById(placeId);
             if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
@@ -63,5 +64,24 @@ public class PlaceService {
             return ResponseDto.databaseError();
         }
         return PlaceResponseDto.success();
+    }
+
+    @Transactional
+    public ResponseEntity<? super GetAllPlaceResponseDto> getAllPlace(String email) {
+        List<PlaceListItem> placeListItems = new ArrayList<>();
+        try {
+            User user = userRepo.findByEmail(email);
+            List<Place> places = placeRepo.findAllByUserId(user);
+
+            for (Place place : places)
+                placeListItems.add(PlaceListItem.of(place));
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        GetAllPlaceResponseDto responseDto = new GetAllPlaceResponseDto(placeListItems);
+        return responseDto.success(placeListItems);
     }
 }
