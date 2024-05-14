@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,6 +36,28 @@ public class PlaceService {
             } else {
                 return PlaceResponseDto.notExistUser();
             }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return PlaceResponseDto.success();
+    }
+
+    @Transactional
+    public ResponseEntity<? super PlaceResponseDto> patchPost(Long placeId, String email, PlaceRequestDto dto) {
+        try {
+            Optional<Place> placeOptional = placeRepo.findById(placeId);
+            if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
+
+            Place place = placeOptional.get();
+            User user = userRepo.findByEmail(email);
+            Long ownerId = place.getUserId().getUserId();
+
+            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+
+            place.patchPlace(dto, user);
+            placeRepo.save(place);
+
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();

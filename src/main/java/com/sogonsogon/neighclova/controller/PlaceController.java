@@ -18,6 +18,7 @@ public class PlaceController {
 
     private final PlaceService placeService;
 
+    // 저장
     @PostMapping("")
     public ResponseEntity<? super PlaceResponseDto> save(@RequestBody PlaceRequestDto requestDto) {
         String email = null;
@@ -39,4 +40,28 @@ public class PlaceController {
         ResponseEntity<? super PlaceResponseDto> response = placeService.savePlace(email, requestDto);
         return response;
     }
+
+    // 수정
+    @PatchMapping("")
+    public ResponseEntity<? super PlaceResponseDto> patchPost(@RequestParam("placeId") Long placeId, @RequestBody PlaceRequestDto requestDto) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super PlaceResponseDto> response = placeService.patchPost(placeId, email, requestDto);
+        return response;
+    }
+
 }
