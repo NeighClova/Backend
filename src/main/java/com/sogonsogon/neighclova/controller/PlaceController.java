@@ -2,6 +2,7 @@ package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.request.PlaceRequestDto;
 import com.sogonsogon.neighclova.dto.response.GetAllPlaceResponseDto;
+import com.sogonsogon.neighclova.dto.response.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.PlaceResponseDto;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -87,5 +88,11 @@ public class PlaceController {
         return response;
     }
 
+    // 개별 조회
+    @GetMapping("")
+    public ResponseEntity<? super GetPlaceResponseDto> getPlace(@RequestParam("placeId") Long placeId) {
+        ResponseEntity<? super GetPlaceResponseDto> response = placeService.getPlace(placeId);
+        return response;
+    }
 
 }

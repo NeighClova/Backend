@@ -5,6 +5,7 @@ import com.sogonsogon.neighclova.domain.User;
 import com.sogonsogon.neighclova.dto.object.PlaceListItem;
 import com.sogonsogon.neighclova.dto.request.PlaceRequestDto;
 import com.sogonsogon.neighclova.dto.response.GetAllPlaceResponseDto;
+import com.sogonsogon.neighclova.dto.response.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.PlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.repository.PlaceRepository;
@@ -83,5 +84,22 @@ public class PlaceService {
 
         GetAllPlaceResponseDto responseDto = new GetAllPlaceResponseDto(placeListItems);
         return responseDto.success(placeListItems);
+    }
+
+    @Transactional
+    public ResponseEntity<? super GetPlaceResponseDto> getPlace(Long placeId) {
+        Place place;
+        try {
+            if (placeRepo.existsById(placeId)) {
+                place = placeRepo.findById(placeId).get();
+            } else {
+                return GetPlaceResponseDto.noExistPlace();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return GetPlaceResponseDto.success(place);
     }
 }
