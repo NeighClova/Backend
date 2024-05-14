@@ -6,6 +6,7 @@ public interface ResponseMessage {
 
     // HTTP Status 400
     String NOT_EXISTED_USER = "This user does not exist.";
+    String NOT_EXISTED_PLACE = "This place does not exist.";
     String DUPLICATE_EMAIL = "duplicate email";
 
     // HTTP Status 401
@@ -13,6 +14,9 @@ public interface ResponseMessage {
     String SIGN_IN_FAILED = "Login information mismatch.";
     String CERTIFICATE_FAIL = "certification failed";
     String AUTHORIZATION_FAIL = "Authorization Failed.";
+
+    // HTTP Status 403
+    String NO_PERMISSION = "Do not have permission.";
 
     // HTTP Status 500
     String MAIL_FAIL = "mail send failed";
