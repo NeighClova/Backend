@@ -2,8 +2,9 @@ package com.sogonsogon.neighclova.service;
 
 import com.sogonsogon.neighclova.domain.Certification;
 import com.sogonsogon.neighclova.domain.User;
-import com.sogonsogon.neighclova.dto.request.*;
+import com.sogonsogon.neighclova.dto.request.auth.*;
 import com.sogonsogon.neighclova.dto.response.*;
+import com.sogonsogon.neighclova.dto.response.auth.*;
 import com.sogonsogon.neighclova.provider.EmailProvider;
 import com.sogonsogon.neighclova.provider.JwtProvider;
 import com.sogonsogon.neighclova.repository.CertificationRepository;

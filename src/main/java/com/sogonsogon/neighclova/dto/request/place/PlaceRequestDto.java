@@ -1,4 +1,4 @@
-package com.sogonsogon.neighclova.dto.request;
+package com.sogonsogon.neighclova.dto.request.place;
 
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;

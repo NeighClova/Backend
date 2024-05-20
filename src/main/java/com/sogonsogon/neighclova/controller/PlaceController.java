@@ -1,9 +1,9 @@
 package com.sogonsogon.neighclova.controller;
 
-import com.sogonsogon.neighclova.dto.request.PlaceRequestDto;
-import com.sogonsogon.neighclova.dto.response.GetAllPlaceResponseDto;
-import com.sogonsogon.neighclova.dto.response.GetPlaceResponseDto;
-import com.sogonsogon.neighclova.dto.response.PlaceResponseDto;
+import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.response.place.GetAllPlaceResponseDto;
+import com.sogonsogon.neighclova.dto.response.place.GetPlaceResponseDto;
+import com.sogonsogon.neighclova.dto.response.place.PlaceResponseDto;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.sogonsogon.neighclova.service.PlaceService;

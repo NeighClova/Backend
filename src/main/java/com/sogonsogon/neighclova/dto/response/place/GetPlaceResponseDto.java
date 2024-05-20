@@ -1,8 +1,9 @@
-package com.sogonsogon.neighclova.dto.response;
+package com.sogonsogon.neighclova.dto.response.place;
 
 import com.sogonsogon.neighclova.common.ResponseCode;
 import com.sogonsogon.neighclova.common.ResponseMessage;
 import com.sogonsogon.neighclova.domain.Place;
+import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Getter
-public class GetPlaceResponseDto extends ResponseDto{
+public class GetPlaceResponseDto extends ResponseDto {
     private Long placeId;
     private String placeName;
     private String category;

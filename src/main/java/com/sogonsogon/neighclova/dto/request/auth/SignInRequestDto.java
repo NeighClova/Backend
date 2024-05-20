@@ -1,4 +1,4 @@
-package com.sogonsogon.neighclova.dto.request;
+package com.sogonsogon.neighclova.dto.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -8,8 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EmailCheckRequestDto {
-
+public class SignInRequestDto {
     @NotBlank
     private String email;
+
+    @NotBlank
+    private String password;
 }
