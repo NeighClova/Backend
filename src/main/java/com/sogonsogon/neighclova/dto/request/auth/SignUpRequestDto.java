@@ -1,4 +1,4 @@
-package com.sogonsogon.neighclova.dto.request;
+package com.sogonsogon.neighclova.dto.request.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

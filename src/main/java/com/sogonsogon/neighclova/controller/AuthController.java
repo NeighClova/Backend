@@ -1,7 +1,7 @@
 package com.sogonsogon.neighclova.controller;
 
-import com.sogonsogon.neighclova.dto.request.*;
-import com.sogonsogon.neighclova.dto.response.*;
+import com.sogonsogon.neighclova.dto.request.auth.*;
+import com.sogonsogon.neighclova.dto.response.auth.*;
 import com.sogonsogon.neighclova.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

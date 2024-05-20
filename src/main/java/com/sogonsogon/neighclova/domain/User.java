@@ -1,6 +1,6 @@
 package com.sogonsogon.neighclova.domain;
 
-import com.sogonsogon.neighclova.dto.request.SignUpRequestDto;
+import com.sogonsogon.neighclova.dto.request.auth.SignUpRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

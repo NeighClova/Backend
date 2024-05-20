@@ -1,13 +1,14 @@
-package com.sogonsogon.neighclova.dto.response;
+package com.sogonsogon.neighclova.dto.response.auth;
 
 import com.sogonsogon.neighclova.common.ResponseCode;
 import com.sogonsogon.neighclova.common.ResponseMessage;
+import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class CheckCertificationResponseDto extends ResponseDto{
+public class CheckCertificationResponseDto extends ResponseDto {
     private CheckCertificationResponseDto() {
         super();
     }

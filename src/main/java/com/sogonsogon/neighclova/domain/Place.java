@@ -1,6 +1,6 @@
 package com.sogonsogon.neighclova.domain;
 
-import com.sogonsogon.neighclova.dto.request.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,10 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter
