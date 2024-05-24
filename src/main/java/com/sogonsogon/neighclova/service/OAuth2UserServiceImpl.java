@@ -26,23 +26,32 @@ public class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(request);
         String oauthClientName = request.getClientRegistration().getClientName();
 
-        try {
-            log.info(new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-
         User user = null;
         String userEmail = null;
 
-        if (oauthClientName.equals("naver")) {
-            Map<String, String> responseMap = (Map<String, String>) oAuth2User.getAttributes().get("response");
-            userEmail = responseMap.get("email");
-            user = new User(userEmail, "naver");
+        try {
+            log.info(new ObjectMapper().writeValueAsString(oAuth2User.getAttributes()));
+
+            if (oauthClientName.equals("naver")) {
+                Map<String, String> responseMap = (Map<String, String>) oAuth2User.getAttributes().get("response");
+                userEmail = responseMap.get("email");
+
+                if (userEmail == null) {
+                    throw new OAuth2AuthenticationException("Email not found in OAuth2 response");
+                }
+
+                user = new User(userEmail, "naver");
+            }
+
+            if (userRepo.existsByEmail(userEmail)){
+                log.info("User with email {} signed in successfully.", userEmail);
+            } else {
+                userRepo.save(user);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
-
-        userRepo.save(user);
-
         return new CustomOAuth2User(userEmail);
     }
 }
