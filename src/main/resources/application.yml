@@ -14,6 +14,10 @@ spring:
     hibernate:
       ddl-auto: update
 
+  sql:
+    init:
+      mode: always
+
   # email 인증
   mail:
     host: smtp.gmail.com
