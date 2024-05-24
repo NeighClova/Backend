@@ -3,8 +3,8 @@ package com.sogonsogon.neighclova.service;
 import com.sogonsogon.neighclova.domain.News;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.dto.object.NewsListItem;
+import com.sogonsogon.neighclova.dto.request.MessageRequestDto;
 import com.sogonsogon.neighclova.dto.request.news.CreateNewsRequestDto;
-import com.sogonsogon.neighclova.dto.request.news.NewsMessageRequestDto;
 import com.sogonsogon.neighclova.dto.request.news.NewsRequestDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.dto.response.news.GetAllNewsResponseDto;
@@ -102,7 +102,7 @@ public class NewsService extends ResponseDto {
             headers.set("X-NCP-APIGW-API-KEY", X_API_KEY_PRIMARY);
             headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", X_REQUEST_ID);
 
-            List<NewsMessageRequestDto> messages = new ArrayList<>();
+            List<MessageRequestDto> messages = new ArrayList<>();
             String prompt = String.format(
                     "- 가게 명 : %s\n" +
                             "- 가게 소식 키워드 : %s\n" +
@@ -117,7 +117,7 @@ public class NewsService extends ResponseDto {
                     requestDto.getHighlightContent(), place.getTargetAge(), place.getTarget()
             );
 
-            messages.add(new NewsMessageRequestDto("user", prompt));
+            messages.add(new MessageRequestDto("user", prompt));
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("messages", messages);
