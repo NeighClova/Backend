@@ -2,6 +2,7 @@ package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.request.introduce.CreateIntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.request.introduce.IntroduceRequestDto;
+import com.sogonsogon.neighclova.dto.response.introduce.Get3IntroduceResponseDto;
 import com.sogonsogon.neighclova.dto.response.introduce.GetIntroduceResponseDto;
 import com.sogonsogon.neighclova.dto.response.introduce.IntroduceResponseDto;
 import com.sogonsogon.neighclova.service.IntroduceService;
@@ -19,6 +20,28 @@ import org.springframework.web.bind.annotation.*;
 public class IntroduceController {
 
     private final IntroduceService introduceService;
+
+    // 최신 3개 글 조회
+    @GetMapping("")
+    public ResponseEntity<? super Get3IntroduceResponseDto> get3Introduce(@RequestParam("placeId") Long placeId) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return IntroduceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return IntroduceResponseDto.databaseError();
+        }
+        ResponseEntity<? super Get3IntroduceResponseDto> response = introduceService.get3Introduce(placeId, email);
+        return response;
+    }
 
     // 저장
     @PostMapping("")

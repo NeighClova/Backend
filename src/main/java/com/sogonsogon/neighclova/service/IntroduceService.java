@@ -2,10 +2,12 @@ package com.sogonsogon.neighclova.service;
 
 import com.sogonsogon.neighclova.domain.Introduce;
 import com.sogonsogon.neighclova.domain.Place;
+import com.sogonsogon.neighclova.dto.object.IntroduceListItem;
 import com.sogonsogon.neighclova.dto.request.MessageRequestDto;
 import com.sogonsogon.neighclova.dto.request.introduce.CreateIntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.request.introduce.IntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
+import com.sogonsogon.neighclova.dto.response.introduce.Get3IntroduceResponseDto;
 import com.sogonsogon.neighclova.dto.response.introduce.GetIntroduceResponseDto;
 import com.sogonsogon.neighclova.dto.response.introduce.IntroduceResponseDto;
 import com.sogonsogon.neighclova.repository.IntroduceRepository;
@@ -41,6 +43,30 @@ public class IntroduceService extends ResponseDto {
 
     private final PlaceRepository placeRepo;
     private final IntroduceRepository introduceRepo;
+
+    @Transactional
+    public ResponseEntity<? super Get3IntroduceResponseDto> get3Introduce(Long placeId, String email) {
+        List<IntroduceListItem> introduceListItems = new ArrayList<>();
+        Place place;
+        try {
+            place = placeRepo.findById(placeId).orElse(null);
+            if (place != null & email.equals(place.getUserId().getEmail())) {
+                List<Introduce> introduces = introduceRepo.findTop3ByPlace(place);
+
+                for (Introduce introduce : introduces)
+                    introduceListItems.add(IntroduceListItem.of(introduce));
+            }
+            else {
+                return IntroduceResponseDto.noPermission();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        Get3IntroduceResponseDto responseDto = new Get3IntroduceResponseDto(introduceListItems, place);
+        return responseDto.success(introduceListItems, place);
+    }
 
     @Transactional
     public ResponseEntity<? super IntroduceResponseDto> saveIntroduce(String email, IntroduceRequestDto requestDto) {
