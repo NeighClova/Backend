@@ -183,6 +183,31 @@ public class AuthServiceImpl implements AuthService {
         return PatchPasswordResponseDto.success();
     }
 
+    // 회원 탈퇴
+    @Override
+    public ResponseEntity<? super DeleteUserResponseDto> deleteUser(String email) {
+        try {
+
+            User user = userRepo.findByEmail(email);
+            // 사용자가 존재하지 않거나, 탈퇴 상태인 경우
+            if (user == null || !user.isStatus())
+                DeleteUserResponseDto.notExistUser();
+
+            user.patchStatus();
+            userRepo.save(user);
+
+            List<Place> placeList = placeRepo.findAllByUserId(user);
+            for (Place place : placeList) {
+                placeRepo.delete(place);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return DeleteUserResponseDto.success();
+    }
+
     // 6자리 인증코드 생성
     private String generateValidationCode() {
         Random rand = new Random();

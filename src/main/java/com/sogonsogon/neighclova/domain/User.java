@@ -16,11 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(length=50, nullable = false)
+    @Column(length = 50, nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -33,10 +34,10 @@ public class User {
 
     private LocalDateTime updated_at;
 
-    @Column(length=20)
+    @Column(length = 20)
     private String type;
 
-    public User (SignUpRequestDto dto) {
+    public User(SignUpRequestDto dto) {
         this.email = dto.getEmail();
         this.password = dto.getPassword();
         this.status = true;
@@ -44,12 +45,16 @@ public class User {
         this.type = "app";
     }
 
-    public void patchPassword (String password) {
+    public void patchPassword(String password) {
         this.password = password;
         this.updated_at = LocalDateTime.now();
     }
 
-    public User (String email, String type) {
+    public void patchStatus() {
+        this.status = false;
+    }
+
+    public User(String email, String type) {
         this.email = email;
         this.password = "password";
         this.status = true;

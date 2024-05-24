@@ -74,4 +74,26 @@ public class AuthController {
         ResponseEntity<? super PatchPasswordResponseDto> response = authService.patchPassword(requestBody, email);
         return response;
     }
+
+    @PatchMapping("/delete")
+    public ResponseEntity<? super DeleteUserResponseDto> deleteUser() {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return DeleteUserResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return DeleteUserResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super DeleteUserResponseDto> response = authService.deleteUser(email);
+        return response;
+    }
 }
