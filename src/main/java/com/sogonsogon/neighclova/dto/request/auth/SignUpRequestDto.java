@@ -16,7 +16,7 @@ public class SignUpRequestDto {
     private String email;
 
     @NotBlank
-    @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,20}$") // 비밀번호 패턴 설정
+    @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,15}$") // 비밀번호 패턴 설정
     private String password;
 
     @NotBlank
