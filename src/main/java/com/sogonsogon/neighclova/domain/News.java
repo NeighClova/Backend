@@ -26,7 +26,7 @@ public class News {
     @Column(length=30, nullable = false)
     private String keyword;
 
-    @Column(length=30, nullable = false)
+    @Column(nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")

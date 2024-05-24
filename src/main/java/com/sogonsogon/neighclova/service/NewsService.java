@@ -55,8 +55,9 @@ public class NewsService extends ResponseDto {
                 for (News news : newsList)
                     newsListItems.add(NewsListItem.of(news));
             }
-
-
+            else {
+                return NewsResponseDto.noPermission();
+            }
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
@@ -108,10 +109,12 @@ public class NewsService extends ResponseDto {
                             "- 소식 유형 : %s\n" +
                             "- 추가 소식 유형 : %s\n" +
                             "- 기간 : %s ~ %s\n" +
-                            "- 강조 내용 : %s",
+                            "- 강조 내용 : %s\n" +
+                            "- 타겟 연령대: %s\n" +
+                            "- 타겟 대상: %s\n",
                     place.getPlaceName(), requestDto.getKeyword(), requestDto.getNewsType(),
                     requestDto.getNewsDetail(), requestDto.getStartDate(), requestDto.getEndDate(),
-                    requestDto.getHighlightContent()
+                    requestDto.getHighlightContent(), place.getTargetAge(), place.getTarget()
             );
 
             messages.add(new NewsMessageRequestDto("user", prompt));
