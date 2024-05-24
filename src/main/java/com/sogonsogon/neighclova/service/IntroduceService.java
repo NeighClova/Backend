@@ -1,16 +1,16 @@
 package com.sogonsogon.neighclova.service;
 
-import com.sogonsogon.neighclova.domain.News;
+import com.sogonsogon.neighclova.domain.Introduce;
 import com.sogonsogon.neighclova.domain.Place;
-import com.sogonsogon.neighclova.dto.object.NewsListItem;
+import com.sogonsogon.neighclova.dto.object.IntroduceListItem;
 import com.sogonsogon.neighclova.dto.request.MessageRequestDto;
-import com.sogonsogon.neighclova.dto.request.news.CreateNewsRequestDto;
-import com.sogonsogon.neighclova.dto.request.news.NewsRequestDto;
+import com.sogonsogon.neighclova.dto.request.introduce.CreateIntroduceRequestDto;
+import com.sogonsogon.neighclova.dto.request.introduce.IntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
-import com.sogonsogon.neighclova.dto.response.news.GetAllNewsResponseDto;
-import com.sogonsogon.neighclova.dto.response.news.GetNewsResponseDto;
-import com.sogonsogon.neighclova.dto.response.news.NewsResponseDto;
-import com.sogonsogon.neighclova.repository.NewsRepository;
+import com.sogonsogon.neighclova.dto.response.introduce.Get3IntroduceResponseDto;
+import com.sogonsogon.neighclova.dto.response.introduce.GetIntroduceResponseDto;
+import com.sogonsogon.neighclova.dto.response.introduce.IntroduceResponseDto;
+import com.sogonsogon.neighclova.repository.IntroduceRepository;
 import com.sogonsogon.neighclova.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +25,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+@Service
 @Slf4j
 @RequiredArgsConstructor
-@Service
-public class NewsService extends ResponseDto {
+public class IntroduceService extends ResponseDto {
 
     @Value("${X_API_KEY}")
     private String X_API_KEY;
@@ -41,56 +41,56 @@ public class NewsService extends ResponseDto {
 
     private static final String ENDPOINT = "https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003";
 
-    private final NewsRepository newsRepo;
     private final PlaceRepository placeRepo;
+    private final IntroduceRepository introduceRepo;
 
     @Transactional
-    public ResponseEntity<? super GetAllNewsResponseDto> getAllNews(Long placeId, String email) {
-        List<NewsListItem> newsListItems = new ArrayList<>();
+    public ResponseEntity<? super Get3IntroduceResponseDto> get3Introduce(Long placeId, String email) {
+        List<IntroduceListItem> introduceListItems = new ArrayList<>();
+        Place place;
         try {
-            Place place = placeRepo.findById(placeId).orElse(null);
+            place = placeRepo.findById(placeId).orElse(null);
             if (place != null & email.equals(place.getUserId().getEmail())) {
-                List<News> newsList = newsRepo.findAllByPlaceId(place);
+                List<Introduce> introduces = introduceRepo.findTop3ByPlace(place);
 
-                for (News news : newsList)
-                    newsListItems.add(NewsListItem.of(news));
+                for (Introduce introduce : introduces)
+                    introduceListItems.add(IntroduceListItem.of(introduce));
             }
             else {
-                return NewsResponseDto.noPermission();
+                return IntroduceResponseDto.noPermission();
             }
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        GetAllNewsResponseDto responseDto = new GetAllNewsResponseDto(newsListItems);
-        return responseDto.success(newsListItems);
+        Get3IntroduceResponseDto responseDto = new Get3IntroduceResponseDto(introduceListItems, place);
+        return responseDto.success(introduceListItems, place);
     }
 
     @Transactional
-    public ResponseEntity<? super NewsResponseDto> saveNews(String email, NewsRequestDto requestDto) {
+    public ResponseEntity<? super IntroduceResponseDto> saveIntroduce(String email, IntroduceRequestDto requestDto) {
         try {
             Place place = placeRepo.findById(requestDto.getPlaceId()).orElseThrow(() -> new NoSuchElementException("Place not found"));
 
             // Place가 사용자 가게가 아니면 noPermission
             if (email.equals(place.getUserId().getEmail())) {
-                News news = requestDto.toEntity(place);
-                newsRepo.save(news);
+                Introduce introduce = requestDto.toEntity(place);
+                introduceRepo.save(introduce);
             } else {
-                return NewsResponseDto.noPermission();
+                return IntroduceResponseDto.noPermission();
             }
 
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return NewsResponseDto.success();
+        return IntroduceResponseDto.success();
     }
 
     @Transactional
-    public ResponseEntity<? super GetNewsResponseDto> createNews(Long placeId, CreateNewsRequestDto requestDto) {
+    public ResponseEntity<? super GetIntroduceResponseDto> createIntroduce(Long placeId, CreateIntroduceRequestDto requestDto) {
         Place place;
-        String title;
         String content;
         try {
 
@@ -103,18 +103,21 @@ public class NewsService extends ResponseDto {
             headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", X_REQUEST_ID);
 
             List<MessageRequestDto> messages = new ArrayList<>();
+
+            String purpose = String.join(",", requestDto.getPurpose());
+            String service = String.join(",", requestDto.getService());
+            String mood = String.join(",", requestDto.getMood());
+            String emphasizeContent = String.join(",", requestDto.getEmphasizeContent());
+
             String prompt = String.format(
                     "- 가게 명 : %s\n" +
-                            "- 가게 소식 키워드 : %s\n" +
-                            "- 소식 유형 : %s\n" +
-                            "- 추가 소식 유형 : %s\n" +
-                            "- 기간 : %s ~ %s\n" +
-                            "- 강조 내용 : %s\n" +
-                            "- 타겟 연령대: %s\n" +
-                            "- 타겟 대상: %s\n",
-                    place.getPlaceName(), requestDto.getKeyword(), requestDto.getNewsType(),
-                    requestDto.getNewsDetail(), requestDto.getStartDate(), requestDto.getEndDate(),
-                    requestDto.getHighlightContent(), place.getTargetAge(), place.getTarget()
+                    "- 가게 업종 : %s\n" +
+                    "- 방문 목적 : %s\n" +
+                    "- 시설 및 서비스 : %s\n" +
+                    "- 분위기 : %s\n" +
+                    "- 강조 내용 : %s\n",
+                    place.getPlaceName(), place.getCategory(), purpose,
+                    service, mood, emphasizeContent
             );
 
             messages.add(new MessageRequestDto("user", prompt));
@@ -138,17 +141,12 @@ public class NewsService extends ResponseDto {
             Map<String, Object> responseBody = response.getBody();
 
             Map<String, Object> result = (Map<String, Object>) responseBody.get("result");
-            String responseContent = (String) ((Map<String, Object>) result.get("message")).get("content");
-
-            // title과 content 분리
-            String[] splitResponse = responseContent.split("\n\n");
-            title = splitResponse.length > 0 ? splitResponse[0] : "";
-            content = splitResponse.length > 1 ? String.join("\n\n", Arrays.copyOfRange(splitResponse, 1, splitResponse.length)) : "";
+            content = (String) ((Map<String, Object>) result.get("message")).get("content");
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return GetNewsResponseDto.success(title, content, requestDto.getKeyword());
+        return GetIntroduceResponseDto.success(content);
     }
 }
