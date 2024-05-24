@@ -44,6 +44,11 @@ public class User {
         this.type = "app";
     }
 
+    public void patchPassword (String password) {
+        this.password = password;
+        this.updated_at = LocalDateTime.now();
+    }
+
     public User (String email, String type) {
         this.email = email;
         this.password = "password";
