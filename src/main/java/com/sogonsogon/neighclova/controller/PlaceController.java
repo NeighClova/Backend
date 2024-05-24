@@ -1,6 +1,7 @@
 package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.request.place.ProfileImgRequestDto;
 import com.sogonsogon.neighclova.dto.response.place.GetAllPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.PlaceResponseDto;
@@ -63,6 +64,29 @@ public class PlaceController {
         }
 
         ResponseEntity<? super PlaceResponseDto> response = placeService.patchPlace(placeId, email, requestDto);
+        return response;
+    }
+
+    // 프로필 사진 수정
+    @PatchMapping("/img")
+    public ResponseEntity<? super PlaceResponseDto> patchProfileImg(@RequestParam("placeId") Long placeId, @RequestBody ProfileImgRequestDto requestDto) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super PlaceResponseDto> response = placeService.patchProfileImg(placeId, email, requestDto);
         return response;
     }
 

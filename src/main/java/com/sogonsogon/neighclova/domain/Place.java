@@ -1,6 +1,7 @@
 package com.sogonsogon.neighclova.domain;
 
 import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.request.place.ProfileImgRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,9 +56,12 @@ public class Place {
         this.placeName = dto.getPlaceName();
         this.category = dto.getCategory();
         this.placeUrl = dto.getPlaceUrl();
-        this.profileImg = dto.getProfileImg();
         this.target = targetString;
         this.targetAge = ageString;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void patchProfileImg(ProfileImgRequestDto dto) {
+        this.profileImg = dto.getProfileImg();
     }
 }
