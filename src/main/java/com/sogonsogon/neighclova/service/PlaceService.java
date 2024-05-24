@@ -4,6 +4,7 @@ import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
 import com.sogonsogon.neighclova.dto.object.PlaceListItem;
 import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
+import com.sogonsogon.neighclova.dto.request.place.ProfileImgRequestDto;
 import com.sogonsogon.neighclova.dto.response.place.GetAllPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.PlaceResponseDto;
@@ -58,6 +59,28 @@ public class PlaceService {
             if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
 
             place.patchPlace(dto, user);
+            placeRepo.save(place);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return PlaceResponseDto.success();
+    }
+
+    @Transactional
+    public ResponseEntity<? super PlaceResponseDto> patchProfileImg(Long placeId, String email, ProfileImgRequestDto dto) {
+        try {
+            Optional<Place> placeOptional = placeRepo.findById(placeId);
+            if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
+
+            Place place = placeOptional.get();
+            User user = userRepo.findByEmail(email);
+            Long ownerId = place.getUserId().getUserId();
+
+            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+
+            place.patchProfileImg(dto);
             placeRepo.save(place);
 
         } catch (Exception exception) {
