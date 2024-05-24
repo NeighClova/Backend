@@ -1,10 +1,14 @@
 package com.sogonsogon.neighclova.service;
 
+import com.sogonsogon.neighclova.domain.Introduce;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.dto.request.MessageRequestDto;
 import com.sogonsogon.neighclova.dto.request.introduce.CreateIntroduceRequestDto;
+import com.sogonsogon.neighclova.dto.request.introduce.IntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.dto.response.introduce.GetIntroduceResponseDto;
+import com.sogonsogon.neighclova.dto.response.introduce.IntroduceResponseDto;
+import com.sogonsogon.neighclova.repository.IntroduceRepository;
 import com.sogonsogon.neighclova.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +40,27 @@ public class IntroduceService extends ResponseDto {
     private static final String ENDPOINT = "https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003";
 
     private final PlaceRepository placeRepo;
+    private final IntroduceRepository introduceRepo;
+
+    @Transactional
+    public ResponseEntity<? super IntroduceResponseDto> saveIntroduce(String email, IntroduceRequestDto requestDto) {
+        try {
+            Place place = placeRepo.findById(requestDto.getPlaceId()).orElseThrow(() -> new NoSuchElementException("Place not found"));
+
+            // Place가 사용자 가게가 아니면 noPermission
+            if (email.equals(place.getUserId().getEmail())) {
+                Introduce introduce = requestDto.toEntity(place);
+                introduceRepo.save(introduce);
+            } else {
+                return IntroduceResponseDto.noPermission();
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return IntroduceResponseDto.success();
+    }
 
     @Transactional
     public ResponseEntity<? super GetIntroduceResponseDto> createIntroduce(Long placeId, CreateIntroduceRequestDto requestDto) {
