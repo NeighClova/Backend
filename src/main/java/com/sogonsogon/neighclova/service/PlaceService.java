@@ -1,5 +1,6 @@
 package com.sogonsogon.neighclova.service;
 
+import com.sogonsogon.neighclova.domain.Feedback;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
 import com.sogonsogon.neighclova.dto.object.PlaceListItem;
@@ -9,6 +10,7 @@ import com.sogonsogon.neighclova.dto.response.place.GetAllPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.PlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
+import com.sogonsogon.neighclova.repository.FeedbackRepository;
 import com.sogonsogon.neighclova.repository.PlaceRepository;
 import com.sogonsogon.neighclova.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class PlaceService {
 
     private final UserRepository userRepo;
     private final PlaceRepository placeRepo;
+    private final FeedbackRepository feedbackRepo;
 
     @Transactional
     public ResponseEntity<? super PlaceResponseDto> savePlace(String email, PlaceRequestDto dto) {
@@ -35,7 +37,20 @@ public class PlaceService {
             User user = userRepo.findByEmail(email);
             if (user != null) {
                 Place place = dto.toEntity(user);
-                placeRepo.save(place);
+
+                // place 저장 후 place 반환
+                Place savedPlace = placeRepo.save(place);
+
+                int remainder = (int) ((savedPlace.getPlaceId()) % 7);
+                String dayOfWeek = getDayOfWeek(remainder);
+
+                Feedback feedback = Feedback.builder()
+                        .placeId(savedPlace)
+                        .viewDate(dayOfWeek)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+                feedbackRepo.save(feedback);
             } else {
                 return PlaceResponseDto.notExistUser();
             }
@@ -124,5 +139,18 @@ public class PlaceService {
         }
 
         return GetPlaceResponseDto.success(place);
+    }
+
+    public static String getDayOfWeek(int remainder) {
+        Map<Integer, String> dayMap = new HashMap<>();
+        dayMap.put(0, "일요일");
+        dayMap.put(1, "월요일");
+        dayMap.put(2, "화요일");
+        dayMap.put(3, "수요일");
+        dayMap.put(4, "목요일");
+        dayMap.put(5, "금요일");
+        dayMap.put(6, "토요일");
+
+        return dayMap.getOrDefault(remainder, "Invalid");
     }
 }

@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Random;
 
+import static java.util.Objects.isNull;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -138,7 +140,7 @@ public class AuthServiceImpl implements AuthService {
             String email = dto.getEmail();
             User user = userRepo.findByEmail(email);
             if (user == null || user.isStatus())
-                SignInResponseDto.signInFail();
+                return SignInResponseDto.signInFail();
 
             String password = dto.getPassword();
             String encodedPassword = user.getPassword();
@@ -160,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             User user = userRepo.findByEmail(email);
             if (user == null || user.isStatus())
-                PatchPasswordResponseDto.notExistUser();
+                return PatchPasswordResponseDto.notExistUser();
 
             // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
             String oldPassword = dto.getOldPassword();
@@ -191,7 +193,7 @@ public class AuthServiceImpl implements AuthService {
             User user = userRepo.findByEmail(email);
             // 사용자가 존재하지 않거나, 탈퇴 상태인 경우
             if (user == null || !user.isStatus())
-                DeleteUserResponseDto.notExistUser();
+                return DeleteUserResponseDto.notExistUser();
 
             user.patchStatus();
             userRepo.save(user);
