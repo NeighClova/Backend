@@ -116,6 +116,7 @@ public class AuthServiceImpl implements AuthService {
 
             // password encoding
             String password = dto.getPassword();
+            log.info(password);
             String encodedPassword = passwordEncoder.encode(password);
             dto.setPassword(encodedPassword);
 
@@ -139,7 +140,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             String email = dto.getEmail();
             User user = userRepo.findByEmail(email);
-            if (user == null || user.isStatus())
+            if (user == null || !user.isStatus())
                 return SignInResponseDto.signInFail();
 
             String password = dto.getPassword();
@@ -161,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<? super PatchPasswordResponseDto> patchPassword(PatchPasswordRequestDto dto, String email) {
         try {
             User user = userRepo.findByEmail(email);
-            if (user == null || user.isStatus())
+            if (user == null || !user.isStatus())
                 return PatchPasswordResponseDto.notExistUser();
 
             // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
