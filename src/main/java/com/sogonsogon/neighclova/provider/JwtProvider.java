@@ -19,9 +19,12 @@ public class JwtProvider {
     @Value("${JWT_SECRET}")
     private String JWT_SECRET;
 
+    private Long JWT_EXPIRED_TIME = (long) (60*24*30);
+
     // jwt 생성
     public String create(String email) {
-        Date expiredDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
+        Date expiredDate = Date.from(Instant.now().plus(JWT_EXPIRED_TIME, ChronoUnit.DAYS));
+
         Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
 
         String jwt = Jwts.builder()
