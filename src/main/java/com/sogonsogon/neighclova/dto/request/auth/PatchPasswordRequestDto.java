@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 public class PatchPasswordRequestDto {
 
     @NotBlank
-    @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,15}$")
     private String oldPassword;
 
     @NotBlank
-    @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,15}$")
     private String newPassword;
 }
