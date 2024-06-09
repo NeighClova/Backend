@@ -1,5 +1,7 @@
 package com.sogonsogon.neighclova.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sogonsogon.neighclova.domain.Feedback;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
@@ -15,10 +17,17 @@ import com.sogonsogon.neighclova.repository.PlaceRepository;
 import com.sogonsogon.neighclova.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,6 +39,12 @@ public class PlaceService {
     private final UserRepository userRepo;
     private final PlaceRepository placeRepo;
     private final FeedbackRepository feedbackRepo;
+
+    @Value("${application.bucket.name}")
+    private String bucketName;
+
+    @Autowired
+    private AmazonS3 s3Client;
 
     @Transactional
     public ResponseEntity<? super PlaceResponseDto> savePlace(String email, PlaceRequestDto dto) {
@@ -84,7 +99,7 @@ public class PlaceService {
     }
 
     @Transactional
-    public ResponseEntity<? super PlaceResponseDto> patchProfileImg(Long placeId, String email, ProfileImgRequestDto dto) {
+    public ResponseEntity<? super PlaceResponseDto> patchProfileImg(Long placeId, String email, MultipartFile file) {
         try {
             Optional<Place> placeOptional = placeRepo.findById(placeId);
             if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
@@ -95,8 +110,31 @@ public class PlaceService {
 
             if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
 
-            place.patchProfileImg(dto);
+            File fileObj = convertMultiPartFileToFile(file);
+            String fileName =  Long.toString(placeId);
+
+            // key가 존재하면 기존 파일은 삭제
+            if ("".equals(fileName) == false && fileName != null) {
+                boolean isExistObject = s3Client.doesObjectExist(bucketName, fileName);
+
+                if (isExistObject == true) {
+                    s3Client.deleteObject(bucketName, fileName);
+                    log.info("중복 제거");
+                }
+            }
+
+            s3Client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
+            log.info("접근 완료");
+            fileObj.delete();
+            log.info("저장 완료");
+
+            // S3에 저장된 이미지 호출하기
+            URL url = s3Client.getUrl("neighclova-s3", Long.toString(placeId));
+            String urltext = ""+url;
+
+            place.patchProfileImg(urltext);
             placeRepo.save(place);
+            log.info(urltext);
 
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -152,5 +190,15 @@ public class PlaceService {
         dayMap.put(6, "토요일");
 
         return dayMap.getOrDefault(remainder, "Invalid");
+    }
+
+    private File convertMultiPartFileToFile(MultipartFile file) {
+        File convertedFile = new File(file.getOriginalFilename());
+        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
+            fos.write(file.getBytes());
+        } catch (IOException e) {
+            log.error("Error converting multipartFile to file", e);
+        }
+        return convertedFile;
     }
 }

@@ -49,8 +49,8 @@ public class Place {
     private LocalDateTime updatedAt;
 
     public void patchPlace(PlaceRequestDto dto, User user) {
-        String targetString = String.join(",", target);
-        String ageString = String.join(",", targetAge);
+        String targetString = String.join(",", dto.getTarget());
+        String ageString = String.join(",", dto.getTargetAge());
 
         this.userId = user;
         this.placeName = dto.getPlaceName();
@@ -61,7 +61,7 @@ public class Place {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void patchProfileImg(ProfileImgRequestDto dto) {
-        this.profileImg = dto.getProfileImg();
+    public void patchProfileImg(String url) {
+        this.profileImg = url;
     }
 }

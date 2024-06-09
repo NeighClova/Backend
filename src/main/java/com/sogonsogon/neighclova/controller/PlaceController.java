@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/place")
@@ -69,7 +70,7 @@ public class PlaceController {
 
     // 프로필 사진 수정
     @PatchMapping("/img")
-    public ResponseEntity<? super PlaceResponseDto> patchProfileImg(@RequestParam("placeId") Long placeId, @RequestBody ProfileImgRequestDto requestDto) {
+    public ResponseEntity<? super PlaceResponseDto> patchProfileImg(@RequestParam("placeId") Long placeId, @RequestParam(value = "file") MultipartFile file) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -86,7 +87,7 @@ public class PlaceController {
             return PlaceResponseDto.databaseError();
         }
 
-        ResponseEntity<? super PlaceResponseDto> response = placeService.patchProfileImg(placeId, email, requestDto);
+        ResponseEntity<? super PlaceResponseDto> response = placeService.patchProfileImg(placeId, email, file);
         return response;
     }
 

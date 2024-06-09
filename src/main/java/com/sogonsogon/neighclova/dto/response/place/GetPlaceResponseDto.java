@@ -18,6 +18,7 @@ public class GetPlaceResponseDto extends ResponseDto {
     private String placeName;
     private String category;
     private String placeUrl;
+    private String profileImg;
     private List<String> targetAge;
     private List<String> target;
 
@@ -31,6 +32,7 @@ public class GetPlaceResponseDto extends ResponseDto {
         this.placeName = place.getPlaceName();
         this.category = place.getCategory();
         this.placeUrl = place.getPlaceUrl();
+        this.profileImg = place.getProfileImg();
         this.targetAge = targetAge;
         this.target = target;
     }
