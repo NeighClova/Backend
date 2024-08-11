@@ -9,17 +9,19 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class SignInResponseDto extends ResponseDto {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private int expirationTime;
 
-    private SignInResponseDto(String token) {
+    private SignInResponseDto(String accessToken, String refreshToken) {
         super();
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.expirationTime = 3600;
     }
 
-    public static ResponseEntity<SignInResponseDto> success(String token) {
-        SignInResponseDto responseBody = new SignInResponseDto(token);
+    public static ResponseEntity<SignInResponseDto> success(String accessToken, String refreshToken) {
+        SignInResponseDto responseBody = new SignInResponseDto(accessToken, refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
