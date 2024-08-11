@@ -18,6 +18,12 @@ spring:
     init:
       mode: always
 
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   # email 인증
   mail:
     host: smtp.gmail.com
