@@ -52,6 +52,12 @@ public class AuthController {
         return response;
     }
 
+    @PostMapping("/reissue")
+    public ResponseEntity<? super TokenResponseDto> reissueToken(@RequestHeader(value = "refreshToken") String refreshToken) {
+        ResponseEntity<? super TokenResponseDto> response = authService.reissue(refreshToken);
+        return response;
+    }
+
     @PatchMapping("/patch-password")
     public ResponseEntity<? super PatchPasswordResponseDto> patchPassword(
             @RequestBody @Valid PatchPasswordRequestDto requestBody) {

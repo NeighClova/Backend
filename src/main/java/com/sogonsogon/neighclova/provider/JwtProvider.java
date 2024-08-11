@@ -96,4 +96,43 @@ public class JwtProvider {
 
         return subject;
     }
+
+    // refresh token 검증 & 유효 시 access token 재발급
+    public List<String> reissue(String refreshToken) {
+        String accessToken = null;
+        String newRefreshToken = null;
+        String email = null;
+        List<String> tokens = new ArrayList<>();
+
+        Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
+
+        try {
+            email = redisTemplate.opsForValue().get(refreshToken);
+            if (email == null) {
+                log.info("refreshToken has been expried or doesn't have validation");
+                return null;
+            }
+
+            Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken);
+            accessToken = createAccessToken(email);
+            newRefreshToken = createRefreshToken(email);
+
+            redisTemplate.delete(refreshToken);
+
+        } catch (ExpiredJwtException exception) {
+            exception.printStackTrace();
+            return null;
+        } catch (JwtException exception) {
+            exception.printStackTrace();
+            return null;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+
+        tokens.add(accessToken);
+        tokens.add(newRefreshToken);
+
+        return tokens;
+    }
 }

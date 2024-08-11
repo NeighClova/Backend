@@ -162,6 +162,29 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public ResponseEntity<? super TokenResponseDto> reissue(String refreshToken) {
+        String accessToken = null;
+        String newRefreshToken = null;
+        List<String> tokens = new ArrayList<>();
+
+        try {
+            tokens = jwtProvider.reissue(refreshToken);
+            if (tokens == null) {
+                log.info("tokens get null");
+                return ResponseDto.databaseError();
+            }
+
+            accessToken = tokens.get(0);
+            newRefreshToken = tokens.get(1);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.validationFail();
+        }
+
+        return TokenResponseDto.success(accessToken, newRefreshToken);
+    }
+
+    @Override
     public ResponseEntity<? super PatchPasswordResponseDto> patchPassword(PatchPasswordRequestDto dto, String email) {
         try {
             User user = userRepo.findByEmail(email);
