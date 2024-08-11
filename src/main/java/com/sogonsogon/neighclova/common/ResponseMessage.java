@@ -14,6 +14,7 @@ public interface ResponseMessage {
     String SIGN_IN_FAILED = "Login information mismatch.";
     String CERTIFICATE_FAIL = "certification failed";
     String AUTHORIZATION_FAIL = "Authorization Failed.";
+    String INVALID_GRANT = "The provided access grant is invalid, expired, or revoked";
 
     // HTTP Status 403
     String NO_PERMISSION = "Do not have permission.";
