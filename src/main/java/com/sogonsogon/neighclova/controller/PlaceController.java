@@ -1,8 +1,10 @@
 package com.sogonsogon.neighclova.controller;
 
+import com.sogonsogon.neighclova.dto.request.place.InstagramRequestDto;
 import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
-import com.sogonsogon.neighclova.dto.request.place.ProfileImgRequestDto;
+import com.sogonsogon.neighclova.dto.request.place.UploadInstagramRequestDto;
 import com.sogonsogon.neighclova.dto.response.place.GetAllPlaceResponseDto;
+import com.sogonsogon.neighclova.dto.response.place.GetInstagramResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.PlaceResponseDto;
 import org.springframework.security.core.Authentication;
@@ -120,4 +122,96 @@ public class PlaceController {
         return response;
     }
 
+    // 인스타그램 계정 연결
+    @PostMapping("/instagram")
+    public ResponseEntity<? super PlaceResponseDto> saveInstagram(@RequestBody InstagramRequestDto requestDto) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super PlaceResponseDto> response = placeService.saveInstagram(email, requestDto);
+        return response;
+    }
+
+    // 인스타그램 계정 정보 수정
+    @PatchMapping("/instagram")
+    public ResponseEntity<? super PlaceResponseDto> patchInstagram(@RequestBody InstagramRequestDto requestDto) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super PlaceResponseDto> response = placeService.patchInstagram(email, requestDto);
+        return response;
+    }
+
+    // 인스타그램 계정 정보 불러오기
+    @GetMapping("/instagram")
+    public ResponseEntity<? super GetInstagramResponseDto> getInstagram(@RequestParam("placeId") Long placeId) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super GetInstagramResponseDto> response = placeService.getInstagram(email, placeId);
+        return response;
+    }
+
+    // 인스타그램 자동 업로드
+    @PostMapping("/instagram/upload")
+    public ResponseEntity<? super PlaceResponseDto> uploadInstagram(@RequestPart(value = "dto") UploadInstagramRequestDto dto,
+                                                                    @RequestPart(value = "file") MultipartFile file) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return PlaceResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PlaceResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super PlaceResponseDto> response = placeService.uploadInstagram(email, dto, file);
+        return response;
+    }
 }
