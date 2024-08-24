@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -135,7 +136,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto) {
 
-        String token = null;
+        String accessToken = null;
+        String refreshToken = null;
 
         try {
             String email = dto.getEmail();
@@ -149,13 +151,37 @@ public class AuthServiceImpl implements AuthService {
             if (!isMatched)
                 return SignInResponseDto.signInFail();
 
-            token = jwtProvider.create(email);
+            accessToken = jwtProvider.createAccessToken(email);
+            refreshToken = jwtProvider.createRefreshToken(email);
 
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return SignInResponseDto.success(token);
+        return SignInResponseDto.success(accessToken, refreshToken);
+    }
+
+    @Override
+    public ResponseEntity<? super TokenResponseDto> reissue(String refreshToken) {
+        String accessToken = null;
+        String newRefreshToken = null;
+        List<String> tokens = new ArrayList<>();
+
+        try {
+            tokens = jwtProvider.reissue(refreshToken);
+            if (tokens == null) {
+                log.info("tokens get null");
+                return ResponseDto.databaseError();
+            }
+
+            accessToken = tokens.get(0);
+            newRefreshToken = tokens.get(1);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.validationFail();
+        }
+
+        return TokenResponseDto.success(accessToken, newRefreshToken);
     }
 
     @Override

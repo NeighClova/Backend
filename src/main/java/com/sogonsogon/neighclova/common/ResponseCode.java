@@ -14,6 +14,7 @@ public interface ResponseCode {
     String SIGN_IN_FAILED = "SF";
     String CERTIFICATE_FAIL = "CF";
     String AUTHORIZATION_FAIL = "AF";
+    String INVALID_GRANT = "IG";
 
     // HTTP Status 403
     String NO_PERMISSION = "NP";

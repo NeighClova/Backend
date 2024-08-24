@@ -8,25 +8,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class SignInResponseDto extends ResponseDto {
+public class TokenResponseDto extends ResponseDto {
     private String accessToken;
     private String refreshToken;
     private int expirationTime;
 
-    private SignInResponseDto(String accessToken, String refreshToken) {
+    private TokenResponseDto(String accessToken, String refreshToken) {
         super();
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expirationTime = 3600;
     }
 
-    public static ResponseEntity<SignInResponseDto> success(String accessToken, String refreshToken) {
-        SignInResponseDto responseBody = new SignInResponseDto(accessToken, refreshToken);
+    public static ResponseEntity<TokenResponseDto> success(String accessToken, String refreshToken) {
+        TokenResponseDto responseBody = new TokenResponseDto(accessToken, refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
-    public static ResponseEntity<ResponseDto> signInFail() {
-        ResponseDto responseBody = new ResponseDto(ResponseCode.SIGN_IN_FAILED, ResponseMessage.SIGN_IN_FAILED);
+    public static ResponseEntity<ResponseDto> reissuedFail() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.INVALID_GRANT, ResponseMessage.INVALID_GRANT);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
 }
