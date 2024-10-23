@@ -30,16 +30,17 @@ import java.util.*;
 @Service
 public class NewsService extends ResponseDto {
 
-    @Value("${X_API_KEY}")
-    private String X_API_KEY;
+    @Value("${X_NCP_CLOVASTUDIO_NEWS_REQUEST_ID}")
+    private String X_NCP_CLOVASTUDIO_NEWS_REQUEST_ID;
 
-    @Value("${X_API_KEY_PRIMARY}")
-    private String X_API_KEY_PRIMARY;
+    @Value("${X_NCP_CLOVASTUDIO_API_KEY}")
+    private String X_NCP_CLOVASTUDIO_API_KEY;
 
-    @Value("${X_REQUEST_ID}")
-    private String X_REQUEST_ID;
+    @Value("${X_NCP_APIGW_API_KEY}")
+    private String X_NCP_APIGW_API_KEY;
 
-    private static final String ENDPOINT = "https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003";
+    @Value("${NEWS_ENDPOINT}")
+    private String NEWS_ENDPOINT;
 
     private final NewsRepository newsRepo;
     private final PlaceRepository placeRepo;
@@ -98,18 +99,18 @@ public class NewsService extends ResponseDto {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-NCP-CLOVASTUDIO-API-KEY", X_API_KEY);
-            headers.set("X-NCP-APIGW-API-KEY", X_API_KEY_PRIMARY);
-            headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", X_REQUEST_ID);
+            headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", X_NCP_CLOVASTUDIO_NEWS_REQUEST_ID);
+            headers.set("X-NCP-CLOVASTUDIO-API-KEY", X_NCP_CLOVASTUDIO_API_KEY);
+            headers.set("X-NCP-APIGW-API-KEY", X_NCP_APIGW_API_KEY);
 
             List<MessageRequestDto> messages = new ArrayList<>();
-            String prompt = String.format(
-                    "- 가게 명 : %s\n" +
-                            "- 가게 소식 키워드 : %s\n" +
-                            "- 소식 유형 : %s\n" +
-                            "- 추가 소식 유형 : %s\n" +
-                            "- 기간 : %s ~ %s\n" +
-                            "- 강조 내용 : %s\n" +
+            String message = String.format(
+                    "- 매장명: %s\n" +
+                            "- 매장 소식 키워드: %s\n" +
+                            "- 소식 유형: %s\n" +
+                            "- 추가 소식 유형: %s\n" +
+                            "- 기간: %s ~ %s\n" +
+                            "- 강조 내용: %s\n" +
                             "- 타겟 연령대: %s\n" +
                             "- 타겟 대상: %s\n",
                     place.getPlaceName(), requestDto.getKeyword(), requestDto.getNewsType(),
@@ -117,7 +118,13 @@ public class NewsService extends ResponseDto {
                     requestDto.getHighlightContent(), place.getTargetAge(), place.getTarget()
             );
 
-            messages.add(new MessageRequestDto("user", prompt));
+            String prompt = "- 키워드를 기반으로 매장의 소식 글을 생성한다.\n- 기간, 강조 내용, 추가 소식 유형은 내용이 없을 수도 있는데, 임의로 글을 작성하지 말고 무시한다.\n- 출력 시 제목\\n\\n내용 형식으로 출력한다.\n\n예시)\n- 매장명: 공릉동 닭칼국수\r\n- 매장 소식 키워드: 임시 휴무\n- 소식 유형: 매장 이용 안내\n- 추가 소식 유형: 개인 일정으로 임시 휴업합니다.\n- 기간: 10월 23일 (수) 오전 9:00 ~ 10월 27일 (일) 오후 10:00\n- 강조 내용: 임시 휴무\n- 타겟 연령대: 20대, 30대\n- 타겟 대상: 대학생, 가족, 직장인\n\n공릉동 닭칼국수 임시 휴무 안내\n\n안녕하세요, 공릉동 닭칼국수입니다. 고객님들께 안내드립니다.\n저희 매장은 개인 일정으로 인해 임시 휴무를 하게 되었습니다.\n이용에 참고 부탁드리며, 불편을 드려 죄송합니다.\n\n기간: 10월 23일 (수) 오전 9:00 ~ 10월 27일 (일) 오후 10:00";
+
+            log.info(requestDto.getStartDate());
+            log.info(requestDto.getEndDate());
+
+            messages.add(new MessageRequestDto("system", prompt));
+            messages.add(new MessageRequestDto("user", message));
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("messages", messages);
@@ -134,7 +141,7 @@ public class NewsService extends ResponseDto {
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<Map> response = restTemplate.postForEntity(ENDPOINT, requestEntity, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(NEWS_ENDPOINT, requestEntity, Map.class);
             Map<String, Object> responseBody = response.getBody();
 
             Map<String, Object> result = (Map<String, Object>) responseBody.get("result");
