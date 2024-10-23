@@ -32,7 +32,8 @@ public class JwtProvider {
 
     // AccessToken 생성
     public String createAccessToken(String email) {
-        Date expiredDate = Date.from(Instant.now().plus(2, ChronoUnit.HOURS));
+        // AccessToken 시간 추후 수정
+        Date expiredDate = Date.from(Instant.now().plus(12, ChronoUnit.HOURS));
 
         Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
 

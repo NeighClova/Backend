@@ -117,7 +117,6 @@ public class AuthServiceImpl implements AuthService {
 
             // password encoding
             String password = dto.getPassword();
-            log.info(password);
             String encodedPassword = passwordEncoder.encode(password);
             dto.setPassword(encodedPassword);
 
@@ -153,7 +152,6 @@ public class AuthServiceImpl implements AuthService {
 
             accessToken = jwtProvider.createAccessToken(email);
             refreshToken = jwtProvider.createRefreshToken(email);
-
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
