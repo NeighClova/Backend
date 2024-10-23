@@ -4,6 +4,7 @@ import com.sogonsogon.neighclova.domain.Introduce;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.dto.object.IntroduceListItem;
 import com.sogonsogon.neighclova.dto.request.MessageRequestDto;
+import com.sogonsogon.neighclova.dto.request.RequestOverrideDto;
 import com.sogonsogon.neighclova.dto.request.introduce.CreateIntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.request.introduce.IntroduceRequestDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
@@ -30,16 +31,18 @@ import java.util.*;
 @RequiredArgsConstructor
 public class IntroduceService extends ResponseDto {
 
-    @Value("${X_API_KEY}")
-    private String X_API_KEY;
+    @Value("${X_NCP_CLOVASTUDIO_INTRODUCE_REQUEST_ID}")
+    private String X_NCP_CLOVASTUDIO_INTRODUCE_REQUEST_ID;
 
-    @Value("${X_API_KEY_PRIMARY}")
-    private String X_API_KEY_PRIMARY;
+    @Value("${X_NCP_CLOVASTUDIO_API_KEY}")
+    private String X_NCP_CLOVASTUDIO_API_KEY;
 
-    @Value("${X_REQUEST_ID}")
-    private String X_REQUEST_ID;
+    @Value("${X_NCP_APIGW_API_KEY}")
+    private String X_NCP_APIGW_API_KEY;
 
-    private static final String ENDPOINT = "https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-003";
+    @Value("${INTRODUCE_ENDPOINT}")
+    private String INTRODUCE_ENDPOINT;
+
 
     private final PlaceRepository placeRepo;
     private final IntroduceRepository introduceRepo;
@@ -98,9 +101,9 @@ public class IntroduceService extends ResponseDto {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-NCP-CLOVASTUDIO-API-KEY", X_API_KEY);
-            headers.set("X-NCP-APIGW-API-KEY", X_API_KEY_PRIMARY);
-            headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", X_REQUEST_ID);
+            headers.set("X-NCP-CLOVASTUDIO-REQUEST-ID", X_NCP_CLOVASTUDIO_INTRODUCE_REQUEST_ID);
+            headers.set("X-NCP-CLOVASTUDIO-API-KEY", X_NCP_CLOVASTUDIO_API_KEY);
+            headers.set("X-NCP-APIGW-API-KEY", X_NCP_APIGW_API_KEY);
 
             List<MessageRequestDto> messages = new ArrayList<>();
 
@@ -109,22 +112,24 @@ public class IntroduceService extends ResponseDto {
             String mood = String.join(",", requestDto.getMood());
             String emphasizeContent = String.join(",", requestDto.getEmphasizeContent());
 
-            String prompt = String.format(
-                    "- 가게 명 : %s\n" +
-                    "- 가게 업종 : %s\n" +
-                    "- 방문 목적 : %s\n" +
-                    "- 시설 및 서비스 : %s\n" +
-                    "- 분위기 : %s\n" +
-                    "- 강조 내용 : %s\n",
+            String message = String.format(
+                    "- 매장명: %s\n" +
+                    "- 매장 업종: %s\n" +
+                    "- 매장 방문 목적 키워드: %s\n" +
+                    "- 매장 시설과 서비스 키워드: %s\n" +
+                    "- 매장 분위기 키워드: %s\n" +
+                    "- 강조하고 싶은 내용: %s\n",
                     place.getPlaceName(), place.getCategory(), purpose,
                     service, mood, emphasizeContent
             );
 
-            messages.add(new MessageRequestDto("user", prompt));
+            String prompt = "- 키워드를 기반으로 매장의 소개 글을 생성한다.\n- 강조하고 싶은 내용이 없는 경우 임의로 작성하지 않는다. \n\n예시)\n- 매장명: 공릉동 닭칼국수\n- 매장 업종: 한식\n- 매장 방문 목적 키워드: 회식, 가족모임\n- 매장 시설과 서비스 키워드: 단체석, 좌식, 입식, 주차공간\n- 매장 분위기 키워드: 혼밥, 혼술, 편한좌석\n- 강조하고 싶은 내용: 50년 전통 닭칼국수\n\n\n공릉동 닭칼국수는 한식 전문점으로, 맛있는 닭칼국수를 즐길 수 있는 곳입니다. 회식이나 가족모임에 적합한 편안한 분위기를 제공하며, 단체석, 좌식 및 입식 좌석 등 다양한 좌석 옵션과 주차 공간을 갖추고 있습니다. 혼밥이나 혼술을 즐기기에도 좋으며, 누구나 편안하게 이용할 수 있는 매장입니다.";
+
+            messages.add(new MessageRequestDto("system", prompt));
+            messages.add(new MessageRequestDto("user", message));
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("messages", messages);
-            requestBody.put("content", prompt);
             requestBody.put("topP", 0.8);
             requestBody.put("topK", 0);
             requestBody.put("maxTokens", 256);
@@ -137,7 +142,7 @@ public class IntroduceService extends ResponseDto {
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<Map> response = restTemplate.postForEntity(ENDPOINT, requestEntity, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(INTRODUCE_ENDPOINT, requestEntity, Map.class);
             Map<String, Object> responseBody = response.getBody();
 
             Map<String, Object> result = (Map<String, Object>) responseBody.get("result");
