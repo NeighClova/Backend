@@ -23,6 +23,7 @@ public class GetFeedbackResponseDto extends ResponseDto {
     private String nBody;
     private List<String> keyword;
     private String createdAt;
+    private String updatedAt;
     private String viewDate;
 
     @Builder
@@ -31,9 +32,10 @@ public class GetFeedbackResponseDto extends ResponseDto {
         String createdAtStr = feedback.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         if (feedback.getKeyword() != null) {
-            List<String> strpSummary = Arrays.asList(feedback.getPSummary().split(","));
-            List<String> strnSummary = Arrays.asList(feedback.getNSummary().split(","));
+            List<String> strpSummary = Arrays.asList(feedback.getPSummary().split("\\.\\s*"));
+            List<String> strnSummary = Arrays.asList(feedback.getNSummary().split("\\.\\s*"));
             List<String> keyword = Arrays.asList(feedback.getKeyword().split(","));
+            String updatedAtStr = feedback.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
             this.placeId = feedback.getPlaceId().getPlaceId();
             this.pSummary = strpSummary;
@@ -42,6 +44,7 @@ public class GetFeedbackResponseDto extends ResponseDto {
             this.nBody = feedback.getNBody();
             this.keyword = keyword;
             this.createdAt = createdAtStr;
+            this.updatedAt = updatedAtStr;
             this.viewDate = feedback.getViewDate();
         } else {
             this.placeId = feedback.getPlaceId().getPlaceId();
@@ -50,6 +53,7 @@ public class GetFeedbackResponseDto extends ResponseDto {
             this.nSummary = null;
             this.keyword = null;
             this.createdAt = createdAtStr;
+            this.updatedAt = null;
             this.viewDate = feedback.getViewDate();
         }
     }
