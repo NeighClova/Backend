@@ -1,7 +1,7 @@
 package com.sogonsogon.neighclova.domain;
 
+import com.sogonsogon.neighclova.dto.request.place.InstagramRequestDto;
 import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
-import com.sogonsogon.neighclova.dto.request.place.ProfileImgRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +43,11 @@ public class Place {
 
     private String target;
 
+    @Column(length=50)
+    private String instagramId;
+
+    private String instagramPw;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -63,5 +68,10 @@ public class Place {
 
     public void patchProfileImg(String url) {
         this.profileImg = url;
+    }
+
+    public void patchInstagram(InstagramRequestDto dto) {
+        this.instagramId = dto.getId();
+        this.instagramPw = dto.getPassword();
     }
 }

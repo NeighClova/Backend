@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS `place` (
     `profile_img` VARCHAR(225),
     `target_age` VARCHAR(225),
     `target` VARCHAR(225),
+    `instagram_id` VARCHAR(50),
+    `instagram_pw` VARCHAR(225),
     `created_at` DATETIME(6),
     `updated_at` DATETIME(6),
     FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE

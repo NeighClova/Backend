@@ -2,32 +2,44 @@ package com.sogonsogon.neighclova.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.sogonsogon.neighclova.KISA_SEED_CBC;
 import com.sogonsogon.neighclova.domain.Feedback;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
 import com.sogonsogon.neighclova.dto.object.PlaceListItem;
+import com.sogonsogon.neighclova.dto.request.place.InstagramRequestDto;
 import com.sogonsogon.neighclova.dto.request.place.PlaceRequestDto;
 import com.sogonsogon.neighclova.dto.request.place.ProfileImgRequestDto;
+import com.sogonsogon.neighclova.dto.request.place.UploadInstagramRequestDto;
 import com.sogonsogon.neighclova.dto.response.place.GetAllPlaceResponseDto;
+import com.sogonsogon.neighclova.dto.response.place.GetInstagramResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.GetPlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.place.PlaceResponseDto;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.repository.FeedbackRepository;
 import com.sogonsogon.neighclova.repository.PlaceRepository;
 import com.sogonsogon.neighclova.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -43,8 +55,26 @@ public class PlaceService {
     @Value("${application.bucket.name}")
     private String bucketName;
 
+    @Value("${PBSZ_USER_KEY}")
+    private String PBSZ_USER_KEY;
+
+    @Value("${PBSZ_IV}")
+    private String PBSZ_IV;
+
     @Autowired
     private AmazonS3 s3Client;
+
+    private byte[] pbszUserKey;
+    private byte[] pbszIV;
+
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
+    private static final String ENDPOINT = "http://127.0.0.1:8000/instagram/upload";
+
+    @PostConstruct
+    public void init() {
+        this.pbszUserKey = PBSZ_USER_KEY.getBytes(UTF_8);
+        this.pbszIV = PBSZ_IV.getBytes(UTF_8);
+    }
 
     @Transactional
     public ResponseEntity<? super PlaceResponseDto> savePlace(String email, PlaceRequestDto dto) {
@@ -179,6 +209,111 @@ public class PlaceService {
         return GetPlaceResponseDto.success(place);
     }
 
+    @Transactional
+    public ResponseEntity<? super PlaceResponseDto> saveInstagram(String email, InstagramRequestDto dto) {
+        try {
+            Optional<Place> placeOptional = placeRepo.findById(dto.getPlaceId());
+            if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
+
+            Place place = placeOptional.get();
+            User user = userRepo.findByEmail(email);
+            Long ownerId = place.getUserId().getUserId();
+
+            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+
+            // password encoding
+            String password = dto.getPassword();
+            String encodedPassword = encrypt(password);
+            dto.setPassword(encodedPassword);
+
+            place.patchInstagram(dto);
+            placeRepo.save(place);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return PlaceResponseDto.success();
+    }
+
+    @Transactional
+    public ResponseEntity<? super PlaceResponseDto> patchInstagram(String email, InstagramRequestDto dto) {
+        try {
+            Optional<Place> placeOptional = placeRepo.findById(dto.getPlaceId());
+            if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
+
+            Place place = placeOptional.get();
+            User user = userRepo.findByEmail(email);
+            Long ownerId = place.getUserId().getUserId();
+
+            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+
+            // password encoding
+            String password = dto.getPassword();
+            String encodedPassword = encrypt(password);
+            dto.setPassword(encodedPassword);
+
+            place.patchInstagram(dto);
+            placeRepo.save(place);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return PlaceResponseDto.success();
+    }
+
+    @Transactional
+    public ResponseEntity<? super GetInstagramResponseDto> getInstagram(String email, Long placeId) {
+        String id;
+        String password;
+
+        try {
+            Optional<Place> placeOptional = placeRepo.findById(placeId);
+            if (!placeOptional.isPresent()) return GetInstagramResponseDto.noExistPlace();
+
+            Place place = placeOptional.get();
+            User user = userRepo.findByEmail(email);
+            Long ownerId = place.getUserId().getUserId();
+
+            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+
+            id = place.getInstagramId();
+            // password decoding
+            password = decrypt(place.getInstagramPw());
+
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return GetInstagramResponseDto.success(placeId, id, password);
+    }
+
+    @Transactional
+    public ResponseEntity<? super PlaceResponseDto> uploadInstagram(String email, UploadInstagramRequestDto dto, MultipartFile file) {
+        try {
+            Optional<Place> placeOptional = placeRepo.findById(dto.getPlaceId());
+            if (!placeOptional.isPresent()) return PlaceResponseDto.notExistedPlace();
+
+            Place place = placeOptional.get();
+            User user = userRepo.findByEmail(email);
+            Long ownerId = place.getUserId().getUserId();
+
+            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+
+            String password = decrypt(place.getInstagramPw());
+
+            sendMultipartRequest(place.getInstagramId(), password, dto.getContent(), file);
+            log.info("successfully uploaded");
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return PlaceResponseDto.success();
+    }
+
     public static String getDayOfWeek(int remainder) {
         Map<Integer, String> dayMap = new HashMap<>();
         dayMap.put(0, "일요일");
@@ -201,4 +336,58 @@ public class PlaceService {
         }
         return convertedFile;
     }
+
+    public String encrypt(String rawMessage) {
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] message = rawMessage.getBytes(UTF_8);
+        byte[] encryptedMessage = KISA_SEED_CBC.SEED_CBC_Encrypt(pbszUserKey, pbszIV, message, 0, message.length);
+
+        return new String(encoder.encode(encryptedMessage), UTF_8);
+    }
+
+    public String decrypt(String encryptedMessage) {
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] message = decoder.decode(encryptedMessage);
+        byte[] decryptedMessage = KISA_SEED_CBC.SEED_CBC_Decrypt(pbszUserKey, pbszIV, message, 0, message.length);
+
+        return new String(decryptedMessage, UTF_8);
+    }
+
+    public void sendMultipartRequest(String instagramId, String instagramPw, String content, MultipartFile multipartFile) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        // Body
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("instagramId", instagramId);
+        body.add("instagramPw", instagramPw);
+        body.add("content", content);
+
+        // Wrap the MultipartFile as a ByteArrayResource for the file upload
+        ByteArrayResource fileResource = new ByteArrayResource(multipartFile.getBytes()) {
+            @Override
+            public String getFilename() {
+                return multipartFile.getOriginalFilename();
+            }
+        };
+
+        body.add("file", fileResource);
+
+        // HttpEntity
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // POST Request
+        ResponseEntity<String> response = restTemplate.exchange(ENDPOINT, HttpMethod.POST, requestEntity, String.class);
+
+        // Response handling
+        if (response.getStatusCode().is2xxSuccessful()) {
+            System.out.println("Response: " + response.getBody());
+        } else {
+            System.out.println("Request failed with status code: " + response.getStatusCode());
+        }
+    }
+
 }
