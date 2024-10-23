@@ -21,7 +21,7 @@ spring:
   # Redis
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST}
       port: 6379
 
   # email 인증
