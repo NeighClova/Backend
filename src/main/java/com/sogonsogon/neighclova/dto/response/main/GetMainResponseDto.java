@@ -4,13 +4,11 @@ import com.sogonsogon.neighclova.common.ResponseCode;
 import com.sogonsogon.neighclova.common.ResponseMessage;
 import com.sogonsogon.neighclova.domain.Feedback;
 import com.sogonsogon.neighclova.dto.response.ResponseDto;
-import com.sogonsogon.neighclova.dto.response.feedback.GetFeedbackResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +19,7 @@ public class GetMainResponseDto extends ResponseDto {
     private List<String> keyword;
     private String pBody;
     private String nBody;
+    private String viewDate;
     private String elapsedTime;
 
     @Builder
@@ -35,6 +34,7 @@ public class GetMainResponseDto extends ResponseDto {
             this.pBody = feedback.getPBody();
             this.nBody = feedback.getNBody();
             this.keyword = keyword;
+            this.viewDate = feedback.getViewDate();
             this.elapsedTime = elapsedTime;
         } else {
             this.placeId = feedback.getPlaceId().getPlaceId();
@@ -42,6 +42,7 @@ public class GetMainResponseDto extends ResponseDto {
             this.pBody = null;
             this.nBody = null;
             this.keyword = null;
+            this.viewDate = feedback.getViewDate();
             this.elapsedTime = elapsedTime;
         }
     }
