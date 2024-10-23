@@ -15,6 +15,7 @@ public class PlaceRequestDto {
     private String category;
     private String placeUrl;
     private String profileImg;
+    private String placeNum;
     private List<String> targetAge;
     private List<String> target;
 
@@ -28,6 +29,7 @@ public class PlaceRequestDto {
                 .category(category)
                 .placeUrl(placeUrl)
                 .profileImg(profileImg)
+                .placeNum(placeNum)
                 .targetAge(ageString)
                 .target(targetString)
                 .createdAt(LocalDateTime.now())

@@ -29,7 +29,8 @@ public class Place {
     @Column(length=30, nullable = false)
     private String placeName;
 
-    private Long placeNum;
+    @Column(length=30)
+    private String placeNum;
 
     @Column(length=50, nullable = false)
     private String category;

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `place` (
     `place_id` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT,
     `place_name` VARCHAR(30) NOT NULL,
-    `place_num` BIGINT,
+    `place_num` VARCHAR(30),
     `category` VARCHAR(50),
     `place_url` VARCHAR(225) NOT NULL,
     `profile_img` VARCHAR(225),
