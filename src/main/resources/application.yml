@@ -21,7 +21,7 @@ spring:
   # Redis
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST}
       port: 6379
 
   # email 인증
@@ -37,7 +37,7 @@ spring:
             enable: true
           auth: true
 
- # Naver OAuth2 설정
+  # Naver OAuth2 설정
   security:
     oauth2:
       client:
@@ -78,3 +78,4 @@ application:
 
 # JWT Secret Key
 JWT_SECRET: ${JWT_SECRET_KEY}
+

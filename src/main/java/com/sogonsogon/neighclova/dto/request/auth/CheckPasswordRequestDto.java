@@ -1,14 +1,13 @@
 package com.sogonsogon.neighclova.dto.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class PatchPasswordRequestDto {
+public class CheckPasswordRequestDto {
 
     @NotBlank
-    private String newPassword;
+    private String password;
 }

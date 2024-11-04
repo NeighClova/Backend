@@ -1,5 +1,7 @@
 package com.sogonsogon.neighclova.service;
 
+import com.sogonsogon.neighclova.common.ResponseCode;
+import com.sogonsogon.neighclova.common.ResponseMessage;
 import com.sogonsogon.neighclova.domain.Certification;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
@@ -13,6 +15,7 @@ import com.sogonsogon.neighclova.repository.PlaceRepository;
 import com.sogonsogon.neighclova.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -183,18 +186,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<? super PatchPasswordResponseDto> patchPassword(PatchPasswordRequestDto dto, String email) {
+    public ResponseEntity<ResponseDto> patchPassword(PatchPasswordRequestDto dto, String email) {
         try {
             User user = userRepo.findByEmail(email);
             if (user == null || !user.isStatus())
-                return PatchPasswordResponseDto.notExistUser();
-
-            // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
-            String oldPassword = dto.getOldPassword();
-            String encodedPassword = user.getPassword();
-            boolean isMatched = passwordEncoder.matches(oldPassword, encodedPassword);
-            if (!isMatched)
-                return PatchPasswordResponseDto.noPermission();
+                return ResponseDto.notExistUser();
 
             // newPassword encoding
             String newPassword = dto.getNewPassword();
@@ -207,7 +203,7 @@ public class AuthServiceImpl implements AuthService {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return PatchPasswordResponseDto.success();
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 
     // 회원 탈퇴
@@ -233,6 +229,47 @@ public class AuthServiceImpl implements AuthService {
             return ResponseDto.databaseError();
         }
         return DeleteUserResponseDto.success();
+    }
+
+    //현재 비밀번호 확인
+    @Override
+    public ResponseEntity<ResponseDto> checkPassword(CheckPasswordRequestDto dto, String email) {
+        try {
+            User user = userRepo.findByEmail(email);
+            if (user == null || !user.isStatus())
+                return ResponseDto.notExistUser();
+
+            // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
+            String password = dto.getPassword();
+            String encodedPassword = user.getPassword();
+            boolean isMatched = passwordEncoder.matches(password, encodedPassword);
+            if (!isMatched)
+                return ResponseDto.noPermission();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    @Override
+    public ResponseEntity<ResponseDto> checkSocial(String email) {
+        try {
+            User user = userRepo.findByEmail(email);
+            if (user == null || !user.isStatus())
+                return ResponseDto.notExistUser();
+
+            String type = user.getType();
+            if (!type.equals("app"))
+                return ResponseDto.noPermission();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 
     // 6자리 인증코드 생성

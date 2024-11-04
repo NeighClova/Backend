@@ -1,6 +1,7 @@
 package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.request.auth.*;
+import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.dto.response.auth.*;
 import com.sogonsogon.neighclova.service.AuthService;
 import jakarta.validation.Valid;
@@ -59,7 +60,7 @@ public class AuthController {
     }
 
     @PatchMapping("/patch-password")
-    public ResponseEntity<? super PatchPasswordResponseDto> patchPassword(
+    public ResponseEntity<ResponseDto> patchPassword(
             @RequestBody @Valid PatchPasswordRequestDto requestBody) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,13 +72,13 @@ public class AuthController {
             }
 
             if (email == null)
-                return PatchPasswordResponseDto.noAuthentication();
+                return ResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
-            return PatchPasswordResponseDto.databaseError();
+            return ResponseDto.databaseError();
         }
 
-        ResponseEntity<? super PatchPasswordResponseDto> response = authService.patchPassword(requestBody, email);
+        ResponseEntity<ResponseDto> response = authService.patchPassword(requestBody, email);
         return response;
     }
 
@@ -100,6 +101,51 @@ public class AuthController {
         }
 
         ResponseEntity<? super DeleteUserResponseDto> response = authService.deleteUser(email);
+        return response;
+    }
+
+    @PostMapping("/check-password")
+    public ResponseEntity<ResponseDto> checkPassword(
+            @RequestBody @Valid CheckPasswordRequestDto requestBody) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return ResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return ResponseDto.databaseError();
+        }
+
+        ResponseEntity<ResponseDto> response = authService.checkPassword(requestBody, email);
+        return response;
+    }
+
+    @GetMapping("/check-social")
+    public ResponseEntity<ResponseDto> checkSocial() {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return ResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return ResponseDto.databaseError();
+        }
+
+        ResponseEntity<ResponseDto> response = authService.checkSocial(email);
         return response;
     }
 }
