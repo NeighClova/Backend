@@ -1,6 +1,7 @@
 package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.request.auth.*;
+import com.sogonsogon.neighclova.dto.response.ResponseDto;
 import com.sogonsogon.neighclova.dto.response.auth.*;
 import com.sogonsogon.neighclova.service.AuthService;
 import jakarta.validation.Valid;
@@ -59,7 +60,7 @@ public class AuthController {
     }
 
     @PatchMapping("/patch-password")
-    public ResponseEntity<? super PatchPasswordResponseDto> patchPassword(
+    public ResponseEntity<ResponseDto> patchPassword(
             @RequestBody @Valid PatchPasswordRequestDto requestBody) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,13 +72,13 @@ public class AuthController {
             }
 
             if (email == null)
-                return PatchPasswordResponseDto.noAuthentication();
+                return ResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
-            return PatchPasswordResponseDto.databaseError();
+            return ResponseDto.databaseError();
         }
 
-        ResponseEntity<? super PatchPasswordResponseDto> response = authService.patchPassword(requestBody, email);
+        ResponseEntity<ResponseDto> response = authService.patchPassword(requestBody, email);
         return response;
     }
 
@@ -104,7 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/check-password")
-    public ResponseEntity<? super CheckPasswordResponseDto> checkPassword(
+    public ResponseEntity<ResponseDto> checkPassword(
             @RequestBody @Valid CheckPasswordRequestDto requestBody) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -116,18 +117,18 @@ public class AuthController {
             }
 
             if (email == null)
-                return CheckPasswordResponseDto.noAuthentication();
+                return ResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
-            return CheckPasswordResponseDto.databaseError();
+            return ResponseDto.databaseError();
         }
 
-        ResponseEntity<? super CheckPasswordResponseDto> response = authService.checkPassword(requestBody, email);
+        ResponseEntity<ResponseDto> response = authService.checkPassword(requestBody, email);
         return response;
     }
 
     @GetMapping("/check-social")
-    public ResponseEntity<? super CheckSocialResponseDto> checkSocial() {
+    public ResponseEntity<ResponseDto> checkSocial() {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -138,13 +139,13 @@ public class AuthController {
             }
 
             if (email == null)
-                return CheckSocialResponseDto.noAuthentication();
+                return ResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
-            return CheckSocialResponseDto.databaseError();
+            return ResponseDto.databaseError();
         }
 
-        ResponseEntity<? super CheckSocialResponseDto> response = authService.checkSocial(email);
+        ResponseEntity<ResponseDto> response = authService.checkSocial(email);
         return response;
     }
 }
