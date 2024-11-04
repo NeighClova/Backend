@@ -250,6 +250,25 @@ public class AuthServiceImpl implements AuthService {
         return CheckPasswordResponseDto.success();
     }
 
+    @Override
+    public ResponseEntity<? super CheckSocialResponseDto> checkSocial(String email) {
+        try {
+            User user = userRepo.findByEmail(email);
+            if (user == null || !user.isStatus())
+                return CheckSocialResponseDto.notExistUser();
+
+            String type = user.getType();
+            if (!type.equals("app"))
+                return CheckSocialResponseDto.noPermission();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return CheckSocialResponseDto.success();
+    }
+
     // 6자리 인증코드 생성
     private String generateValidationCode() {
         Random rand = new Random();

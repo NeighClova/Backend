@@ -104,7 +104,7 @@ public class AuthController {
     }
 
     @PostMapping("/check-password")
-    public ResponseEntity<? super CheckPasswordResponseDto> patchPassword(
+    public ResponseEntity<? super CheckPasswordResponseDto> checkPassword(
             @RequestBody @Valid CheckPasswordRequestDto requestBody) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -123,6 +123,28 @@ public class AuthController {
         }
 
         ResponseEntity<? super CheckPasswordResponseDto> response = authService.checkPassword(requestBody, email);
+        return response;
+    }
+
+    @GetMapping("/check-social")
+    public ResponseEntity<? super CheckSocialResponseDto> checkSocial() {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return CheckSocialResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return CheckSocialResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super CheckSocialResponseDto> response = authService.checkSocial(email);
         return response;
     }
 }
