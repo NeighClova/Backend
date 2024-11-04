@@ -10,8 +10,5 @@ import lombok.NoArgsConstructor;
 public class PatchPasswordRequestDto {
 
     @NotBlank
-    private String oldPassword;
-
-    @NotBlank
     private String newPassword;
 }

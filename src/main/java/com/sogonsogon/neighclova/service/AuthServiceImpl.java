@@ -189,13 +189,6 @@ public class AuthServiceImpl implements AuthService {
             if (user == null || !user.isStatus())
                 return PatchPasswordResponseDto.notExistUser();
 
-            // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
-            String oldPassword = dto.getOldPassword();
-            String encodedPassword = user.getPassword();
-            boolean isMatched = passwordEncoder.matches(oldPassword, encodedPassword);
-            if (!isMatched)
-                return PatchPasswordResponseDto.noPermission();
-
             // newPassword encoding
             String newPassword = dto.getNewPassword();
             String newEncodedPassword = passwordEncoder.encode(newPassword);
@@ -241,14 +234,14 @@ public class AuthServiceImpl implements AuthService {
         try {
             User user = userRepo.findByEmail(email);
             if (user == null || !user.isStatus())
-                return PatchPasswordResponseDto.notExistUser();
+                return CheckPasswordResponseDto.notExistUser();
 
             // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
             String password = dto.getPassword();
             String encodedPassword = user.getPassword();
             boolean isMatched = passwordEncoder.matches(password, encodedPassword);
             if (!isMatched)
-                return PatchPasswordResponseDto.noPermission();
+                return CheckPasswordResponseDto.noPermission();
 
         } catch (Exception exception) {
             exception.printStackTrace();
