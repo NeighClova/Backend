@@ -102,4 +102,27 @@ public class AuthController {
         ResponseEntity<? super DeleteUserResponseDto> response = authService.deleteUser(email);
         return response;
     }
+
+    @PostMapping("/check-password")
+    public ResponseEntity<? super CheckPasswordResponseDto> patchPassword(
+            @RequestBody @Valid CheckPasswordRequestDto requestBody) {
+        String email = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        try {
+            if (authentication != null) {
+                // 현재 인증된 사용자 정보
+                email = authentication.getName();
+            }
+
+            if (email == null)
+                return CheckPasswordResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return CheckPasswordResponseDto.databaseError();
+        }
+
+        ResponseEntity<? super CheckPasswordResponseDto> response = authService.checkPassword(requestBody, email);
+        return response;
+    }
 }

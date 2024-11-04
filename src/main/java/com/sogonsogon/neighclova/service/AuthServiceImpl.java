@@ -235,6 +235,28 @@ public class AuthServiceImpl implements AuthService {
         return DeleteUserResponseDto.success();
     }
 
+    //현재 비밀번호 확인
+    @Override
+    public ResponseEntity<? super CheckPasswordResponseDto> checkPassword(CheckPasswordRequestDto dto, String email) {
+        try {
+            User user = userRepo.findByEmail(email);
+            if (user == null || !user.isStatus())
+                return PatchPasswordResponseDto.notExistUser();
+
+            // 이전 비밀번호와 현재 user의 비밀번호가 일치한지
+            String password = dto.getPassword();
+            String encodedPassword = user.getPassword();
+            boolean isMatched = passwordEncoder.matches(password, encodedPassword);
+            if (!isMatched)
+                return PatchPasswordResponseDto.noPermission();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return CheckPasswordResponseDto.success();
+    }
+
     // 6자리 인증코드 생성
     private String generateValidationCode() {
         Random rand = new Random();

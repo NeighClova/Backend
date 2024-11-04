@@ -20,4 +20,6 @@ public interface AuthService {
     ResponseEntity<? super PatchPasswordResponseDto> patchPassword(PatchPasswordRequestDto dto, String email);
 
     ResponseEntity<? super DeleteUserResponseDto> deleteUser(String email);
+
+    ResponseEntity<? super CheckPasswordResponseDto> checkPassword(CheckPasswordRequestDto dto, String email);
 }
