@@ -15,6 +15,7 @@ public interface ResponseMessage {
     String CERTIFICATE_FAIL = "certification failed";
     String AUTHORIZATION_FAIL = "Authorization Failed.";
     String INVALID_GRANT = "The provided access grant is invalid, expired, or revoked";
+    String EXPIRED_TOKEN = "This token is expired";
 
     // HTTP Status 403
     String NO_PERMISSION = "Do not have permission.";
