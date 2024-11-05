@@ -2,8 +2,6 @@ package com.sogonsogon.neighclova.controller;
 
 import com.sogonsogon.neighclova.dto.response.feedback.FeedbackResponseDto;
 import com.sogonsogon.neighclova.dto.response.feedback.GetFeedbackResponseDto;
-import com.sogonsogon.neighclova.dto.response.news.GetAllNewsResponseDto;
-import com.sogonsogon.neighclova.dto.response.news.NewsResponseDto;
 import com.sogonsogon.neighclova.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,7 @@ public class FeedbackController {
 
     // 전체 조회
     @GetMapping("")
-    public ResponseEntity<? super GetFeedbackResponseDto> getAllNews(@RequestParam("placeId") Long placeId) {
+    public ResponseEntity<? super GetFeedbackResponseDto> getFeedback(@RequestParam("placeId") Long placeId) {
         String email = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
