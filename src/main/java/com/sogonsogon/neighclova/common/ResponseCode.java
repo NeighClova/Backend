@@ -15,6 +15,7 @@ public interface ResponseCode {
     String CERTIFICATE_FAIL = "CF";
     String AUTHORIZATION_FAIL = "AF";
     String INVALID_GRANT = "IG";
+    String EXPIRED_TOKEN = "EXT";
 
     // HTTP Status 403
     String NO_PERMISSION = "NP";
