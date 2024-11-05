@@ -1,7 +1,5 @@
 package com.sogonsogon.neighclova.service;
 
-import com.sogonsogon.neighclova.common.ResponseCode;
-import com.sogonsogon.neighclova.common.ResponseMessage;
 import com.sogonsogon.neighclova.domain.Certification;
 import com.sogonsogon.neighclova.domain.Place;
 import com.sogonsogon.neighclova.domain.User;
@@ -24,8 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import static java.util.Objects.isNull;
 
 @Service
 @RequiredArgsConstructor
@@ -172,7 +168,7 @@ public class AuthServiceImpl implements AuthService {
             tokens = jwtProvider.reissue(refreshToken);
             if (tokens == null) {
                 log.info("tokens get null");
-                return ResponseDto.databaseError();
+                return ResponseDto.expiredToken();
             }
 
             accessToken = tokens.get(0);
@@ -231,7 +227,7 @@ public class AuthServiceImpl implements AuthService {
         return DeleteUserResponseDto.success();
     }
 
-    //현재 비밀번호 확인
+    // 현재 비밀번호 확인
     @Override
     public ResponseEntity<ResponseDto> checkPassword(CheckPasswordRequestDto dto, String email) {
         try {
