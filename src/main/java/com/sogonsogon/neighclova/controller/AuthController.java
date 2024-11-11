@@ -154,4 +154,11 @@ public class AuthController {
         ResponseEntity<ResponseDto> response = authService.checkId(requestBody);
         return response;
     }
+
+    // 이메일로 아이디 찾기
+    @PostMapping("/send-uid")
+    public ResponseEntity<? super SendUidResponseDto> sendUidByEmail(@RequestBody @Valid EmailCheckRequestDto requestBody) {
+        ResponseEntity<? super SendUidResponseDto> response = authService.sendUidByEmail(requestBody);
+        return response;
+    }
 }

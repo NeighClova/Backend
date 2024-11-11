@@ -286,6 +286,32 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 
+    // 이메일로 아이디 찾기
+    @Override
+    public ResponseEntity<? super SendUidResponseDto> sendUidByEmail(EmailCheckRequestDto dto) {
+        try {
+            // 이메일이 유효한지 확인
+            String email = dto.getEmail();
+            User user = userRepo.findByEmail(email);
+
+            // 회원이 존재하고 탈퇴하지 않았다면
+            if (user != null && user.isStatus()) {
+                // 유효하다면 해당 이메일로 id 전송
+                boolean isSucceed = emailProvider.sendUidMail(email, user.getUid());
+                if (!isSucceed)
+                    return SendUidResponseDto.mailSendFail();
+
+                return SendUidResponseDto.success();
+            } else
+                // 유효하지 않다면 notExistEmail error 전송
+                return SendUidResponseDto.notExistedEmail();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+    }
+
     // 6자리 인증코드 생성
     private String generateValidationCode() {
         Random rand = new Random();

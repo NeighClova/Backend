@@ -7,6 +7,7 @@ public interface ResponseCode {
     // HTTP Status 400
     String NOT_EXISTED_USER = "NEU";
     String NOT_EXISTED_PLACE = "NEP";
+    String NOT_EXISTED_EMAIL = "NEE";
     String DUPLICATE_EMAIL = "DE";
     String DUPLICATE_ID = "DI";
 
