@@ -10,6 +10,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SignUpRequestDto {
+
+    @NotBlank
+    private String uid;
+
     @Email
     @NotBlank
     private String email;

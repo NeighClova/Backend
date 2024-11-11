@@ -40,6 +40,7 @@ public class User {
     private String type;
 
     public User(SignUpRequestDto dto) {
+        this.uid = dto.getUid();
         this.email = dto.getEmail();
         this.password = dto.getPassword();
         this.status = true;
@@ -57,6 +58,7 @@ public class User {
     }
 
     public User(String email, String type) {
+        this.uid = email + "n";
         this.email = email;
         this.password = "password";
         this.status = true;
