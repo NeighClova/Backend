@@ -138,8 +138,8 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = null;
 
         try {
-            String email = dto.getEmail();
-            User user = userRepo.findByEmail(email);
+            String uid = dto.getUid();
+            User user = userRepo.findByUid(uid);
             if (user == null || !user.isStatus())
                 return SignInResponseDto.signInFail();
 
@@ -149,8 +149,8 @@ public class AuthServiceImpl implements AuthService {
             if (!isMatched)
                 return SignInResponseDto.signInFail();
 
-            accessToken = jwtProvider.createAccessToken(email);
-            refreshToken = jwtProvider.createRefreshToken(email);
+            accessToken = jwtProvider.createAccessToken(user.getEmail());
+            refreshToken = jwtProvider.createRefreshToken(user.getEmail());
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
