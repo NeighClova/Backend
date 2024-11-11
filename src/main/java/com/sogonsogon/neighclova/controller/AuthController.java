@@ -161,4 +161,12 @@ public class AuthController {
         ResponseEntity<? super SendUidResponseDto> response = authService.sendUidByEmail(requestBody);
         return response;
     }
+
+    // [비로그인-비밀번호 수정] 아이디 입력 시 사용자 이메일로 코드 전송
+    @PostMapping("/uid-certification")
+    public ResponseEntity<? super EmailCertificationResponseDto> uidCertification (@RequestBody @Valid uidCertificationRequestDto requestBody) {
+        ResponseEntity<? super EmailCertificationResponseDto> response = authService.uidCertification(requestBody);
+        return response;
+    }
+
 }

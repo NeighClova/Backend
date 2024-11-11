@@ -312,6 +312,31 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    // [비로그인-비밀번호 수정] 아이디 입력 시 사용자 이메일로 코드 전송
+    @Override
+    public ResponseEntity<? super EmailCertificationResponseDto> uidCertification(uidCertificationRequestDto dto) {
+        try {
+            String uid = dto.getUid();
+            User user = userRepo.findByUid(uid);
+            if (user == null || !user.isStatus())
+                return EmailCertificationResponseDto.notExistUser();
+
+            String certificationNumber = generateValidationCode();
+
+            boolean isSucceed = emailProvider.sendCertificationMail(user.getEmail(), certificationNumber);
+            if (!isSucceed)
+                return EmailCertificationResponseDto.mailSendFail();
+
+            Certification certification = new Certification(user.getEmail(), certificationNumber);
+            certificationRepo.save(certification);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return EmailCertificationResponseDto.success();
+    }
+
     // 6자리 인증코드 생성
     private String generateValidationCode() {
         Random rand = new Random();

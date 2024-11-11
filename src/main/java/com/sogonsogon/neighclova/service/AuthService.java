@@ -29,4 +29,6 @@ public interface AuthService {
     ResponseEntity<ResponseDto> checkId(CheckIdRequestDto dto);
 
     ResponseEntity<? super SendUidResponseDto> sendUidByEmail(EmailCheckRequestDto dto);
+
+    ResponseEntity<? super EmailCertificationResponseDto> uidCertification(uidCertificationRequestDto dto);
 }
