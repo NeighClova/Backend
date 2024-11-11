@@ -169,4 +169,17 @@ public class AuthController {
         return response;
     }
 
+    // [비로그인-비밀번호 수정] AT 없이 비밀번호 수정하기
+    @PatchMapping("/no-auth/patch-password")
+    public ResponseEntity<ResponseDto> patchPasswordWithoutAT(
+            @RequestBody @Valid PatchPasswordRequestDto requestBody) {
+        String email = requestBody.getEmail();
+
+        if (email == null)
+            return ResponseDto.noAuthentication();
+
+        ResponseEntity<ResponseDto> response = authService.patchPassword(requestBody, email);
+        return response;
+    }
+
 }
