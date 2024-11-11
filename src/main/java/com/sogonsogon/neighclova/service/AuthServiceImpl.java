@@ -249,6 +249,7 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 
+    // 소셜 로그인 여부 확인
     @Override
     public ResponseEntity<ResponseDto> checkSocial(String email) {
         try {
@@ -259,6 +260,23 @@ public class AuthServiceImpl implements AuthService {
             String type = user.getType();
             if (!type.equals("app"))
                 return ResponseDto.noPermission();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    // 아이디 중복 확인
+    @Override
+    public ResponseEntity<ResponseDto> checkId(CheckIdRequestDto dto) {
+        try {
+            String uid = dto.getUid();
+            boolean isExistUid = userRepo.existsByUid(uid);
+            if (isExistUid)
+                return ResponseDto.duplicatedId();
 
         } catch (Exception exception) {
             exception.printStackTrace();

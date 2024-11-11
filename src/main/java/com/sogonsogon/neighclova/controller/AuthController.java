@@ -148,4 +148,10 @@ public class AuthController {
         ResponseEntity<ResponseDto> response = authService.checkSocial(email);
         return response;
     }
+
+    @PostMapping("/check-id")
+    public ResponseEntity<ResponseDto> checkId(@RequestBody @Valid CheckIdRequestDto requestBody) {
+        ResponseEntity<ResponseDto> response = authService.checkId(requestBody);
+        return response;
+    }
 }
