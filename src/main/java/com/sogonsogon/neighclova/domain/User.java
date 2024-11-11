@@ -18,8 +18,10 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long userId;
+    private Long id;
+
+    @Column(length = 50, nullable = false)
+    private String uid;
 
     @Column(length = 50, nullable = false)
     private String email;
