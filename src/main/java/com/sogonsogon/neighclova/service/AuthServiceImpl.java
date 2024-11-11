@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
             return ResponseDto.databaseError();
         }
 
-        return EmailCertificationResponseDto.success();
+        return EmailCertificationResponseDto.success(dto.getEmail());
     }
 
     @Override
@@ -315,6 +315,7 @@ public class AuthServiceImpl implements AuthService {
     // [비로그인-비밀번호 수정] 아이디 입력 시 사용자 이메일로 코드 전송
     @Override
     public ResponseEntity<? super EmailCertificationResponseDto> uidCertification(uidCertificationRequestDto dto) {
+        String email = null;
         try {
             String uid = dto.getUid();
             User user = userRepo.findByUid(uid);
@@ -322,19 +323,19 @@ public class AuthServiceImpl implements AuthService {
                 return EmailCertificationResponseDto.notExistUser();
 
             String certificationNumber = generateValidationCode();
-
-            boolean isSucceed = emailProvider.sendCertificationMail(user.getEmail(), certificationNumber);
+            email = user.getEmail();
+            boolean isSucceed = emailProvider.sendCertificationMail(email, certificationNumber);
             if (!isSucceed)
                 return EmailCertificationResponseDto.mailSendFail();
 
-            Certification certification = new Certification(user.getEmail(), certificationNumber);
+            Certification certification = new Certification(email, certificationNumber);
             certificationRepo.save(certification);
 
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return EmailCertificationResponseDto.success();
+        return EmailCertificationResponseDto.success(email);
     }
 
     // 6자리 인증코드 생성

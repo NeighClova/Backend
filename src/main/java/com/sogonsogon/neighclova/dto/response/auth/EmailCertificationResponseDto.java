@@ -9,13 +9,15 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class EmailCertificationResponseDto extends ResponseDto {
+    private String email;
 
-    private EmailCertificationResponseDto() {
+    private EmailCertificationResponseDto(String email) {
         super();
+        this.email = email;
     }
 
-    public static ResponseEntity<EmailCertificationResponseDto> success() {
-        EmailCertificationResponseDto responseBody = new EmailCertificationResponseDto();
+    public static ResponseEntity<EmailCertificationResponseDto> success(String email) {
+        EmailCertificationResponseDto responseBody = new EmailCertificationResponseDto(email);
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
