@@ -136,6 +136,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = null;
         String refreshToken = null;
+        String email = null;
 
         try {
             String uid = dto.getUid();
@@ -151,11 +152,12 @@ public class AuthServiceImpl implements AuthService {
 
             accessToken = jwtProvider.createAccessToken(user.getEmail());
             refreshToken = jwtProvider.createRefreshToken(user.getEmail());
+            email = user.getEmail();
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return SignInResponseDto.success(accessToken, refreshToken);
+        return SignInResponseDto.success(accessToken, refreshToken, email);
     }
 
     @Override
