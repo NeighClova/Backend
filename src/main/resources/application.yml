@@ -37,7 +37,7 @@ spring:
             enable: true
           auth: true
 
- # Naver OAuth2 설정
+  # Naver OAuth2 설정
   security:
     oauth2:
       client:

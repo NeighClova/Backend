@@ -114,9 +114,9 @@ public class PlaceService {
 
             Place place = placeOptional.get();
             User user = userRepo.findByEmail(email);
-            Long ownerId = place.getUserId().getUserId();
+            Long ownerId = place.getUserId().getId();
 
-            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+            if (!ownerId.equals(user.getId())) return PlaceResponseDto.noPermission();
 
             place.patchPlace(dto, user);
             placeRepo.save(place);
@@ -136,9 +136,9 @@ public class PlaceService {
 
             Place place = placeOptional.get();
             User user = userRepo.findByEmail(email);
-            Long ownerId = place.getUserId().getUserId();
+            Long ownerId = place.getUserId().getId();
 
-            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+            if (!ownerId.equals(user.getId())) return PlaceResponseDto.noPermission();
 
             File fileObj = convertMultiPartFileToFile(file);
             String fileName =  Long.toString(placeId);
@@ -217,9 +217,9 @@ public class PlaceService {
 
             Place place = placeOptional.get();
             User user = userRepo.findByEmail(email);
-            Long ownerId = place.getUserId().getUserId();
+            Long ownerId = place.getUserId().getId();
 
-            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+            if (!ownerId.equals(user.getId())) return PlaceResponseDto.noPermission();
 
             // password encoding
             String password = dto.getPassword();
@@ -244,9 +244,9 @@ public class PlaceService {
 
             Place place = placeOptional.get();
             User user = userRepo.findByEmail(email);
-            Long ownerId = place.getUserId().getUserId();
+            Long ownerId = place.getUserId().getId();
 
-            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+            if (!ownerId.equals(user.getId())) return PlaceResponseDto.noPermission();
 
             // password encoding
             String password = dto.getPassword();
@@ -274,9 +274,9 @@ public class PlaceService {
 
             Place place = placeOptional.get();
             User user = userRepo.findByEmail(email);
-            Long ownerId = place.getUserId().getUserId();
+            Long ownerId = place.getUserId().getId();
 
-            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+            if (!ownerId.equals(user.getId())) return PlaceResponseDto.noPermission();
 
             id = place.getInstagramId();
             // password decoding
@@ -298,9 +298,9 @@ public class PlaceService {
 
             Place place = placeOptional.get();
             User user = userRepo.findByEmail(email);
-            Long ownerId = place.getUserId().getUserId();
+            Long ownerId = place.getUserId().getId();
 
-            if (!ownerId.equals(user.getUserId())) return PlaceResponseDto.noPermission();
+            if (!ownerId.equals(user.getId())) return PlaceResponseDto.noPermission();
 
             String password = decrypt(place.getInstagramPw());
 

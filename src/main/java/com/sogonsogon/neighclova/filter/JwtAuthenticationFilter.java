@@ -1,6 +1,7 @@
 package com.sogonsogon.neighclova.filter;
 
 import com.sogonsogon.neighclova.provider.JwtProvider;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             securityContext.setAuthentication(authenticationToken);
             SecurityContextHolder.setContext(securityContext);
 
+        } catch (ExpiredJwtException expiredJwtException) {
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"code\": \"EXT\", \"message\": \"This token has expired.\"}");
+            return;
         } catch (Exception exception) {
             exception.printStackTrace();
         }

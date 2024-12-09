@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +33,7 @@ public class JwtProvider {
 
     // AccessToken 생성
     public String createAccessToken(String email) {
-        // AccessToken 시간 추후 수정
-        Date expiredDate = Date.from(Instant.now().plus(12, ChronoUnit.HOURS));
+        Date expiredDate = Date.from(Instant.now().plus(2, ChronoUnit.HOURS));
 
         Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
 
@@ -70,36 +70,23 @@ public class JwtProvider {
     }
 
     // jwt 검증
-    public String validate(String jwt) {
+    public String validate(String jwt) throws ExpiredJwtException {
         String subject = null;
         Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
 
-        try {
-            subject = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(jwt)
-                    .getBody()
-                    .getSubject();
+        subject = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(jwt)
+                .getBody()
+                .getSubject();
 
-            log.info(subject);
-
-        } catch (ExpiredJwtException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (JwtException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            return null;
-        }
-
+        log.info(subject);
         return subject;
     }
 
     // refresh token 검증 & 유효 시 access token 재발급
-    public List<String> reissue(String refreshToken) {
+    public List<String> reissue(String refreshToken) throws ExpiredJwtException, JwtException{
         String accessToken = null;
         String newRefreshToken = null;
         String email = null;
