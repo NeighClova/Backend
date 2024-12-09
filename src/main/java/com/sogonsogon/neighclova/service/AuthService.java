@@ -25,4 +25,10 @@ public interface AuthService {
     ResponseEntity<ResponseDto> checkPassword(CheckPasswordRequestDto dto, String email);
 
     ResponseEntity<ResponseDto> checkSocial(String email);
+
+    ResponseEntity<ResponseDto> checkId(CheckIdRequestDto dto);
+
+    ResponseEntity<? super SendUidResponseDto> sendUidByEmail(EmailCheckRequestDto dto);
+
+    ResponseEntity<? super EmailCertificationResponseDto> uidCertification(uidCertificationRequestDto dto);
 }

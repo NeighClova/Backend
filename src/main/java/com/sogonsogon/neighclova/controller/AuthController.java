@@ -148,4 +148,38 @@ public class AuthController {
         ResponseEntity<ResponseDto> response = authService.checkSocial(email);
         return response;
     }
+
+    @PostMapping("/check-id")
+    public ResponseEntity<ResponseDto> checkId(@RequestBody @Valid CheckIdRequestDto requestBody) {
+        ResponseEntity<ResponseDto> response = authService.checkId(requestBody);
+        return response;
+    }
+
+    // 이메일로 아이디 찾기
+    @PostMapping("/send-uid")
+    public ResponseEntity<? super SendUidResponseDto> sendUidByEmail(@RequestBody @Valid EmailCheckRequestDto requestBody) {
+        ResponseEntity<? super SendUidResponseDto> response = authService.sendUidByEmail(requestBody);
+        return response;
+    }
+
+    // [비로그인-비밀번호 수정] 아이디 입력 시 사용자 이메일로 코드 전송
+    @PostMapping("/uid-certification")
+    public ResponseEntity<? super EmailCertificationResponseDto> uidCertification (@RequestBody @Valid uidCertificationRequestDto requestBody) {
+        ResponseEntity<? super EmailCertificationResponseDto> response = authService.uidCertification(requestBody);
+        return response;
+    }
+
+    // [비로그인-비밀번호 수정] AT 없이 비밀번호 수정하기
+    @PatchMapping("/no-auth/patch-password")
+    public ResponseEntity<ResponseDto> patchPasswordWithoutAT(
+            @RequestBody @Valid PatchPasswordRequestDto requestBody) {
+        String email = requestBody.getEmail();
+
+        if (email == null)
+            return ResponseDto.noAuthentication();
+
+        ResponseEntity<ResponseDto> response = authService.patchPassword(requestBody, email);
+        return response;
+    }
+
 }

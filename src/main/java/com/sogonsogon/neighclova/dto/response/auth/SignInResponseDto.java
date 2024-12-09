@@ -12,16 +12,18 @@ public class SignInResponseDto extends ResponseDto {
     private String accessToken;
     private String refreshToken;
     private int expirationTime;
+    private String email;
 
-    private SignInResponseDto(String accessToken, String refreshToken) {
+    private SignInResponseDto(String accessToken, String refreshToken, String email) {
         super();
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expirationTime = 3600;
+        this.email = email;
     }
 
-    public static ResponseEntity<SignInResponseDto> success(String accessToken, String refreshToken) {
-        SignInResponseDto responseBody = new SignInResponseDto(accessToken, refreshToken);
+    public static ResponseEntity<SignInResponseDto> success(String accessToken, String refreshToken, String email) {
+        SignInResponseDto responseBody = new SignInResponseDto(accessToken, refreshToken, email);
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 

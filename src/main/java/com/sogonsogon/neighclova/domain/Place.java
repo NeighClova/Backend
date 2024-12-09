@@ -23,7 +23,7 @@ public class Place {
     private Long placeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User userId;
 
     @Column(length=30, nullable = false)

@@ -48,4 +48,9 @@ public class ResponseDto {
         ResponseDto responseBody = new ResponseDto(ResponseCode.EXPIRED_TOKEN, ResponseMessage.EXPIRED_TOKEN);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
+
+    public static ResponseEntity<ResponseDto> duplicatedId() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.DUPLICATE_ID, ResponseMessage.DUPLICATE_ID);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+    }
 }

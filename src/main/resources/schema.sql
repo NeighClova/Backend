@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `user` (
-    `user_id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `uid` VARCHAR(50) NOT NULL,
     `email` VARCHAR(50) NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `status` TINYINT(1) NOT NULL,
@@ -22,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `place` (
     `instagram_pw` VARCHAR(225),
     `created_at` DATETIME(6),
     `updated_at` DATETIME(6),
-    FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `news` (

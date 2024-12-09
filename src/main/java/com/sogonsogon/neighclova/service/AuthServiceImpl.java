@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
             return ResponseDto.databaseError();
         }
 
-        return EmailCertificationResponseDto.success();
+        return EmailCertificationResponseDto.success(dto.getEmail());
     }
 
     @Override
@@ -136,10 +136,11 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = null;
         String refreshToken = null;
+        String email = null;
 
         try {
-            String email = dto.getEmail();
-            User user = userRepo.findByEmail(email);
+            String uid = dto.getUid();
+            User user = userRepo.findByUid(uid);
             if (user == null || !user.isStatus())
                 return SignInResponseDto.signInFail();
 
@@ -149,13 +150,14 @@ public class AuthServiceImpl implements AuthService {
             if (!isMatched)
                 return SignInResponseDto.signInFail();
 
-            accessToken = jwtProvider.createAccessToken(email);
-            refreshToken = jwtProvider.createRefreshToken(email);
+            accessToken = jwtProvider.createAccessToken(user.getEmail());
+            refreshToken = jwtProvider.createRefreshToken(user.getEmail());
+            email = user.getEmail();
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return SignInResponseDto.success(accessToken, refreshToken);
+        return SignInResponseDto.success(accessToken, refreshToken, email);
     }
 
     @Override
@@ -249,6 +251,7 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 
+    // 소셜 로그인 여부 확인
     @Override
     public ResponseEntity<ResponseDto> checkSocial(String email) {
         try {
@@ -266,6 +269,75 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    // 아이디 중복 확인
+    @Override
+    public ResponseEntity<ResponseDto> checkId(CheckIdRequestDto dto) {
+        try {
+            String uid = dto.getUid();
+            boolean isExistUid = userRepo.existsByUid(uid);
+            if (isExistUid)
+                return ResponseDto.duplicatedId();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    // 이메일로 아이디 찾기
+    @Override
+    public ResponseEntity<? super SendUidResponseDto> sendUidByEmail(EmailCheckRequestDto dto) {
+        try {
+            // 이메일이 유효한지 확인
+            String email = dto.getEmail();
+            User user = userRepo.findByEmail(email);
+
+            // 회원이 존재하고 탈퇴하지 않았다면
+            if (user != null && user.isStatus()) {
+                // 유효하다면 해당 이메일로 id 전송
+                boolean isSucceed = emailProvider.sendUidMail(email, user.getUid());
+                if (!isSucceed)
+                    return SendUidResponseDto.mailSendFail();
+
+                return SendUidResponseDto.success();
+            } else
+                // 유효하지 않다면 notExistEmail error 전송
+                return SendUidResponseDto.notExistedEmail();
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+    }
+
+    // [비로그인-비밀번호 수정] 아이디 입력 시 사용자 이메일로 코드 전송
+    @Override
+    public ResponseEntity<? super EmailCertificationResponseDto> uidCertification(uidCertificationRequestDto dto) {
+        String email = null;
+        try {
+            String uid = dto.getUid();
+            User user = userRepo.findByUid(uid);
+            if (user == null || !user.isStatus())
+                return EmailCertificationResponseDto.notExistUser();
+
+            String certificationNumber = generateValidationCode();
+            email = user.getEmail();
+            boolean isSucceed = emailProvider.sendCertificationMail(email, certificationNumber);
+            if (!isSucceed)
+                return EmailCertificationResponseDto.mailSendFail();
+
+            Certification certification = new Certification(email, certificationNumber);
+            certificationRepo.save(certification);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return EmailCertificationResponseDto.success(email);
     }
 
     // 6자리 인증코드 생성
